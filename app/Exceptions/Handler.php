@@ -3,8 +3,10 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -39,17 +41,13 @@ class Handler extends ExceptionHandler
             //
         });
 
-        $this->renderable(function(\Exception $e) {
-            $response = [
-                "status" => 500,
-                "message" => "Internal server error",
-            ];
-
-            if (env("APP_ENV") == "development" || env("APP_ENV") == "local") {
-                $response["error"] = $e->getMessage();
+        $this->renderable(function (Exception $e) {
+            if ($e instanceof NotFoundHttpException) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'Not found'
+                ], 404);
             }
-
-            return response()->json($response, 500);
         });
     }
 }

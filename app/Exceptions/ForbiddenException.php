@@ -17,7 +17,6 @@ class ForbiddenException extends Exception
         return response()->json([
             "status" => 403,
             "message" => $this->getMessage(),
-            "errors" => "Forbidden"
         ], 403);
     }
 }
