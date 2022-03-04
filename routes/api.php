@@ -11,6 +11,14 @@ Route::controller(\App\Http\Controllers\Rest\AuthController::class)
     });
 
 
+Route::prefix('public')
+    ->middleware(['auth:sanctum'])
+    ->group(function() {
+        Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
+        Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);
+    });
+
+
 Route::middleware(['auth:sanctum', 'is.admin'])
     ->prefix('admin')
     ->group(function() {
@@ -33,5 +41,34 @@ Route::middleware(['auth:sanctum', 'is.admin'])
                 Route::put('/{lessonSubjectId}', 'updateLessonSubject');
                 Route::delete('/{lessonSubjectId}', 'deleteLessonSubject');
             });
+    });
 
+Route::middleware(['auth:sanctum', 'is.teacher'])
+    ->prefix('teacher')
+    ->group(function () {
+        Route::controller(\App\Http\Controllers\Rest\TeacherLevelController::class)
+            ->prefix('level')
+            ->group(function () {
+                Route::get('/', 'getAllTeacherLevel');
+                Route::post('/', 'createTeacherLevel');
+                Route::delete('/{teacherLevelId}', 'deleteTeacherLevel');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\TeacherLessonSubjectController::class)
+            ->prefix('lesson-subject')
+            ->group(function () {
+                Route::get('/', 'getAllTeacherLessonSubject');
+                Route::post('/', 'createTeacherLessonSubject');
+                Route::delete('/{teacherLessonSujectId}', 'deleteTeacherLessonSubject');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\TeacherPackageController::class)
+            ->prefix('package')
+            ->group(function () {
+                Route::get('/', 'getAllTeacherPackage');
+                Route::get('/{teacherPackageId}', 'getOneTeacherPackage');
+                Route::post('/', 'createTeacherPackage');
+                Route::put('/{teacherPackageId}', 'updateTeacherPackage');
+                Route::delete('/{teacherPackageId}', 'nonActiveTeacherPackage');
+            });
     });

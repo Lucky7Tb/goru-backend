@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -11,6 +10,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use HasApiTokens;
+
+    protected $keyType = 'string';
 
     protected $guarded = [
         'id'
@@ -22,7 +23,6 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'id' => 'string',
         'is_ban' => 'boolean',
         'is_recommended' => 'boolean',
     ];
@@ -40,12 +40,12 @@ class User extends Authenticatable
 
         self::creating(function ($model) {
             $model->id = Str::uuid();
-            $model->created_at = Carbon::now("Asia/Jakarta");
-            $model->updated_at = Carbon::now("Asia/Jakarta");
+            $model->created_at = now("Asia/Jakarta");
+            $model->updated_at = now("Asia/Jakarta");
         });
 
         self::updating(function($model) {
-            $model->updated_at = Carbon::now("Asia/Jakarta");
+            $model->updated_at = now("Asia/Jakarta");
         });
     }
 

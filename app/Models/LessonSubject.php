@@ -10,12 +10,10 @@ class LessonSubject extends Model
 {
     use HasFactory;
 
+    protected $keyType = 'string';
+
     protected $guarded = [
         "id"
-    ];
-
-    protected $casts = [
-        'id' => 'string',
     ];
 
     public static function boot()
