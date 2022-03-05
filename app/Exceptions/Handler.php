@@ -43,24 +43,33 @@ class Handler extends ExceptionHandler
             //
         });
 
-        $this->renderable(function (Exception $e) {
-            if ($e instanceof NotFoundHttpException) {
-                return response()->json([
-                    'status' => 404,
-                    'message' => 'Not found'
-                ], 404);
-            } else if($e instanceof ValidationException) {
-                return response()->json([
-                    'status' => 422,
-                    'message' => 'Data incorrect',
-                    'errors' => $e->errors()
-                ], 422);
-            } else if($e instanceof AuthenticationException) {
-                return response()->json([
-                    'status' => 401,
-                    'message' => 'You are not authenticated',
-                ], 401);
-            }
+        $this->renderable(function(ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        });
+
+        $this->renderable(function (NotFoundHttpException $e) {
+            return response()->json([
+                'status' => 404,
+                'message' => "Tidak ditemukan"
+            ], 404);
+        });
+
+        $this->renderable(function (ValidationException $e) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Data salah',
+                'errors' => $e->errors()
+            ], 422);
+        });
+
+        $this->renderable(function (AuthenticationException $e) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Kamu belum login, harap login terlebih dahulu',
+            ], 401);
         });
     }
 }
