@@ -69,6 +69,6 @@ Route::middleware(['auth:sanctum', 'is.teacher'])
                 Route::get('/{teacherPackageId}', 'getOneTeacherPackage');
                 Route::post('/', 'createTeacherPackage');
                 Route::put('/{teacherPackageId}', 'updateTeacherPackage');
-                Route::delete('/{teacherPackageId}', 'nonActiveTeacherPackage');
+                Route::put('/{teacherPackageId}/toggle-status', 'toggleStatusTeacherPackage');
             });
     });

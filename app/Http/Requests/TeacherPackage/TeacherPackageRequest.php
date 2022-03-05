@@ -30,7 +30,7 @@ class TeacherPackageRequest extends FormRequest
                 'integer'
             ],
             'encounter' => [
-                'required_unless:packager,per_day',
+                'required_unless:package,per_day',
                 'integer'
             ]
         ];

@@ -64,14 +64,14 @@ class TeacherPackageController extends Controller
 
     public function updateTeacherPackage(string $teacherPackageId, TeacherPackageRequest $teacherPackageRequest)
     {
-        $updatedTeacherPackageData = $teacherPackageRequest->validate();
-        $teacherPackage = TeacherPackage::select(['id'])->find($teacherPackageId);
+        $updatedTeacherPackageData = $teacherPackageRequest->validated();
+        $teacherPackage = TeacherPackage::select('id', 'package')->find($teacherPackageId);
 
         if (is_null($teacherPackage)) {
             throw new NotFoundException('Data paket tidak ditemukan');
         }
 
-        if($updatedTeacherPackageData['package'] != TeacherPackage::PERDAY) {
+        if($teacherPackage->package != TeacherPackage::PERDAY) {
             $teacherPackage->encounter = $updatedTeacherPackageData['encounter'];
         }
         $teacherPackage->price_per_hour = $updatedTeacherPackageData['price_per_hour'];
@@ -80,6 +80,23 @@ class TeacherPackageController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Berhasil mengubah informasi paket kamu'
+        ]);
+    }
+
+    public function toggleStatusTeacherPackage(string $teacherPackageId)
+    {
+        $teacherPackage = TeacherPackage::select('id', 'is_active')->find($teacherPackageId);
+
+        if (is_null($teacherPackage)) {
+            throw new NotFoundException('Data paket tidak ditemukan');
+        }
+
+        $teacherPackage->is_active = !$teacherPackage->is_active;
+        $teacherPackage->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengubah status paket kamu'
         ]);
     }
 }
