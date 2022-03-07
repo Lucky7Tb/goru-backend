@@ -2,8 +2,8 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use Throwable;
+use InvalidArgumentException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -70,6 +70,14 @@ class Handler extends ExceptionHandler
                 'status' => 401,
                 'message' => 'Kamu belum login, harap login terlebih dahulu',
             ], 401);
+        });
+
+        $this->renderable(function (InvalidArgumentException $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Gagal mengupload file',
+                'stack' => $e->getMessage()
+            ], 500);
         });
     }
 }
