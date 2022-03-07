@@ -23,8 +23,8 @@ class LevelController extends Controller
 
     public function getOneLevel($levelId)
     {
-        $level = Level::select(['id', 'name', 'description'])->where('id', $levelId)->first();
-        if ($level === null) throw new NotFoundException('Level tidak ditemukan');
+        $level = Level::select(['id', 'name', 'description'])->find($levelId);
+        if (is_null($level)) throw new NotFoundException('Level tidak ditemukan');
 
         return response()->json([
             'message' => 'Sukses mengambil level mengajar guru',
@@ -44,8 +44,8 @@ class LevelController extends Controller
 
     public function updateLevel(LevelRequest $levelRequest, $levelId)
     {
-        $level = Level::select(['id', 'name', 'description'])->where('id', $levelId)->first();
-        if ($level === null) throw new NotFoundException('Level tidak ditemukan');
+        $level = Level::select(['id', 'name', 'description'])->find($levelId);
+        if (is_null($level)) throw new NotFoundException('Level tidak ditemukan');
 
         $updatedLevelData = $levelRequest->validated();
         $level->name = $updatedLevelData['name'];
@@ -59,8 +59,8 @@ class LevelController extends Controller
 
     public function deleteLevel($levelId)
     {
-        $level = Level::select(['id', 'name', 'description'])->where('id', $levelId)->first();
-        if ($level === null) throw new NotFoundException('Level tidak ditemukan');
+        $level = Level::select('id', 'name', 'description')->find($levelId);
+        if (is_null($level)) throw new NotFoundException('Level tidak ditemukan');
         $level->delete();
         return response()->json([
             'status' => 200,
