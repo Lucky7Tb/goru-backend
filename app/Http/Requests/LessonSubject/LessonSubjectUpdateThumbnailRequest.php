@@ -4,7 +4,7 @@ namespace App\Http\Requests\LessonSubject;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LessonSubjectRequest extends FormRequest
+class LessonSubjectUpdateThumbnailRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,15 +23,8 @@ class LessonSubjectRequest extends FormRequest
      */
     public function rules()
     {
-        $validation = [
-            'name' => ['required', 'string', 'max:50'],
-            'description' => ['required', 'string', 'max:100'],
+        return [
+            'thumbnail' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2024']
         ];
-
-        if (request()->getMethod() == 'POST') {
-            $validation['thumbnail'] = ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2024'];
-        }
-
-        return $validation;
     }
 }
