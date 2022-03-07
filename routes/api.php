@@ -38,6 +38,7 @@ Route::middleware(['auth:sanctum', 'is.admin'])
                 Route::get('/', 'getAllLessonSubject');
                 Route::get('/{lessonSubjectId}', 'getOneLessonSubject');
                 Route::post('/', 'createLessonSubject');
+                Route::post('/{lessonSubjectId}/thumbnail', 'updateLessonSubjectThumbnail');
                 Route::put('/{lessonSubjectId}', 'updateLessonSubject');
                 Route::delete('/{lessonSubjectId}', 'deleteLessonSubject');
             });
@@ -70,5 +71,14 @@ Route::middleware(['auth:sanctum', 'is.teacher'])
                 Route::post('/', 'createTeacherPackage');
                 Route::put('/{teacherPackageId}', 'updateTeacherPackage');
                 Route::put('/{teacherPackageId}/toggle-status', 'toggleStatusTeacherPackage');
+            });
+    });
+
+Route::middleware(['auth:sanctum', 'is.student'])
+    ->prefix('student')
+    ->group(function () {
+        Route::prefix('teacher')
+            ->group(function() {
+                Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
     });

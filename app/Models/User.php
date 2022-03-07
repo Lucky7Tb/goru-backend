@@ -49,8 +49,29 @@ class User extends Authenticatable
         });
     }
 
+    public function scopeIsAdmin($query)
+    {
+        return $query->where('role', '=', 'admin');
+    }
+
+    public function scopeIsStudent($query)
+    {
+        return $query->where('role', '=', 'student');
+
+    }
+
+    public function scopeIsTeacher($query)
+    {
+        return $query->where('role', '=', 'teacher');
+    }
+
     public function ratings()
     {
         return $this->hasMany(TeacherRating::class);
+    }
+
+    public function package()
+    {
+        return $this->hasMany(TeacherPackage::class);
     }
 }
