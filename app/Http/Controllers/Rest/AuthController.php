@@ -10,6 +10,7 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\ForbiddenException;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\TeacherPackage;
 
 class AuthController extends Controller
 {
@@ -43,7 +44,16 @@ class AuthController extends Controller
     {
         $userData = $request->validated();
         $userData["password"] = bcrypt($userData["password"]);
-        User::create($userData);
+        $createdUser = User::create($userData);
+
+        if ($userData['role'] == 'teacher') {
+            TeacherPackage::create([
+                'user_id' => $createdUser->id,
+                'package' => 'per_day',
+                'price_per_hour' => 50000,
+            ]);
+        }
+
         return response()->json([
             "status" => 201,
             "message" => "Sukses registrasi"
