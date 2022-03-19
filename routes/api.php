@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(\App\Http\Controllers\Rest\AuthController::class)
     ->prefix("/auth")
-    ->group(function() {
+    ->group(function () {
         Route::post("login", "login")->middleware(["guest"]);
         Route::post("register", "register")->middleware(["guest"]);
         Route::post("logout", "logout")->middleware("auth:sanctum");
@@ -13,7 +13,7 @@ Route::controller(\App\Http\Controllers\Rest\AuthController::class)
 
 Route::prefix('public')
     ->middleware(['auth:sanctum'])
-    ->group(function() {
+    ->group(function () {
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
         Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);
     });
@@ -21,10 +21,10 @@ Route::prefix('public')
 
 Route::middleware(['auth:sanctum', 'is.admin'])
     ->prefix('admin')
-    ->group(function() {
+    ->group(function () {
         Route::controller(\App\Http\Controllers\Rest\LevelController::class)
             ->prefix('level')
-            ->group(function() {
+            ->group(function () {
                 Route::get('/', 'getAllLevel');
                 Route::get('/{levelId}', 'getOneLevel');
                 Route::post('/', 'createLevel');
@@ -34,13 +34,21 @@ Route::middleware(['auth:sanctum', 'is.admin'])
 
         Route::controller(\App\Http\Controllers\Rest\LessonSubjectController::class)
             ->prefix('lesson-subject')
-            ->group(function() {
+            ->group(function () {
                 Route::get('/', 'getAllLessonSubject');
                 Route::get('/{lessonSubjectId}', 'getOneLessonSubject');
                 Route::post('/', 'createLessonSubject');
                 Route::post('/{lessonSubjectId}/thumbnail', 'updateLessonSubjectThumbnail');
                 Route::put('/{lessonSubjectId}', 'updateLessonSubject');
                 Route::delete('/{lessonSubjectId}', 'deleteLessonSubject');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
+            ->prefix('transaction')
+            ->group(function () {
+                Route::get('/', 'getAllTransaction');
+                Route::get('/{transactionId}', 'getOneTransaction');
+                Route::put('/{transactionId}', 'updateTransactionStatus');
             });
     });
 
@@ -72,13 +80,31 @@ Route::middleware(['auth:sanctum', 'is.teacher'])
                 Route::put('/{teacherPackageId}', 'updateTeacherPackage');
                 Route::put('/{teacherPackageId}/toggle-status', 'toggleStatusTeacherPackage');
             });
+
+        Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
+            ->prefix('schedule')
+            ->group(function () {
+                Route::get('/', 'getTeacherSchedule');
+                Route::get('/{scheduleId}/detail', 'getTeacherScheduleDetail');
+                Route::put('/{scheduleId}/detail/{scheduleDetailId}', 'updateTeacherScheduleDetail');
+                Route::put('/{scheduleId}/detail/{scheduleDetailId}/meet-link', 'updateScheduleMeetLink');
+                Route::post('/{scheduleId}/detail/{scheduleDetailId}/meet-evidance', 'updateScheduleMeetEvidance');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\TeacherDocumentAdditionalController::class)
+            ->prefix('document')
+            ->group(function () {
+                Route::get('/', 'getDocument');
+                Route::post('/', 'addDocument');
+                Route::delete('/{documentId}', 'deleteDocument');
+            });
     });
 
 Route::middleware(['auth:sanctum', 'is.student'])
     ->prefix('student')
     ->group(function () {
         Route::prefix('teacher')
-            ->group(function() {
+            ->group(function () {
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
     });

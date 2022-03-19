@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\TeacherPackage\TeacherPackageRequest;
+use App\Http\Requests\Teacher\TeacherPackageRequest;
 use App\Exceptions\AlreadyTakenException;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;

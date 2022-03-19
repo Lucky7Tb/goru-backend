@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\TeacherLessonSubject\TeacherLessonSubjectRequest;
+use App\Http\Requests\Teacher\TeacherLessonSubjectRequest;
 use App\Exceptions\AlreadyTakenException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherLessonSubject;

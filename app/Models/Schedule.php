@@ -27,4 +27,24 @@ class Schedule extends Model
             $model->updated_at = now("Asia/Jakarta");
         });
     }
+
+    public function package()
+    {
+        return $this->belongsTo(TeacherPackage::class, 'teacher_package_id');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(User::class)->where("role", "student");
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(User::class)->where("role", "teacher");
+    }
+
+    public function transaction() 
+    {
+        return $this->hasOne(Transaction::class);
+    }
 }

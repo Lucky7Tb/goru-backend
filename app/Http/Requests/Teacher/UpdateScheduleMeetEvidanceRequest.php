@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\TeacherLevel;
+namespace App\Http\Requests\Teacher;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TeacherLevelRequest extends FormRequest
+class UpdateScheduleMeetEvidanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,12 @@ class TeacherLevelRequest extends FormRequest
     public function rules()
     {
         return [
-            'level_id' => ['required', 'uuid']
+            'meet_evidance' => [
+                'required', 
+                'image', 
+                'mimes:png,jpg,jpeg', 
+                'max:2024'
+            ]
         ];
     }
 }

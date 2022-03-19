@@ -27,4 +27,9 @@ class ScheduleDetail extends Model
             $model->updated_at = now("Asia/Jakarta");
         });
     }
+
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
+    }
 }

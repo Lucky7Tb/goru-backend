@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Rest;
 
+use App\Http\Requests\Teacher\TeacherLevelRequest;
 use App\Exceptions\AlreadyTakenException;
 use App\Exceptions\NotFoundException;
-use App\Http\Requests\TeacherLevel\TeacherLevelRequest;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherLevel;
 use Illuminate\Http\Request;

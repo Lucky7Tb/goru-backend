@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Teacher\HireTeacherRequest;
+use App\Http\Requests\Student\HireTeacherRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherPackage;
