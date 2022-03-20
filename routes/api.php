@@ -7,7 +7,17 @@ Route::controller(\App\Http\Controllers\Rest\AuthController::class)
     ->group(function () {
         Route::post("login", "login")->middleware(["guest"]);
         Route::post("register", "register")->middleware(["guest"]);
-        Route::post("logout", "logout")->middleware("auth:sanctum");
+        Route::post("logout", "logout")->middleware(["auth:sanctum"]);
+    });
+
+Route::controller(\App\Http\Controllers\Rest\ProfileController::class)
+    ->prefix('/profile')
+    ->middleware(['auth:sanctum'])
+    ->group(function() {
+        Route::put('/', 'changeName');
+        Route::put('/bio', 'changeBio')->middleware(['is.teacher']);
+        Route::post('/photo', 'changePhotoProfile');
+        Route::put('/password', 'changePassword');
     });
 
 
@@ -22,6 +32,16 @@ Route::prefix('public')
 Route::middleware(['auth:sanctum', 'is.admin'])
     ->prefix('admin')
     ->group(function () {
+        Route::controller(\App\Http\Controllers\Rest\ApplicationBankAccountController::class)
+            ->prefix('bank-account')
+            ->group(function () {
+                Route::get('/', 'getAllBankAccount');
+                Route::get('/{bankAccountId}', 'getOneBankAccount');
+                Route::post('/', 'createBankAccount');
+                Route::put('/{bankAccountId}', 'updateBankAccount');
+                Route::post('/{bankAccountId}/logo', 'updateBankAccountLogo');
+            });
+
         Route::controller(\App\Http\Controllers\Rest\LevelController::class)
             ->prefix('level')
             ->group(function () {
@@ -43,13 +63,7 @@ Route::middleware(['auth:sanctum', 'is.admin'])
                 Route::delete('/{lessonSubjectId}', 'deleteLessonSubject');
             });
 
-        Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
-            ->prefix('transaction')
-            ->group(function () {
-                Route::get('/', 'getAllTransaction');
-                Route::get('/{transactionId}', 'getOneTransaction');
-                Route::put('/{transactionId}', 'updateTransactionStatus');
-            });
+        
     });
 
 Route::middleware(['auth:sanctum', 'is.teacher'])
