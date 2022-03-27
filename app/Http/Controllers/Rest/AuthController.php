@@ -26,6 +26,9 @@ class AuthController extends Controller
                 Auth::logout();
             } else {
                 $token = $user->createToken(env("APP_NAME"))->plainTextToken;
+                if(!is_null($user->photo_profile)) {
+                    $user->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F$user->photo_profile?alt=media";            
+                }
                 return response()->json([
                     "status" => 200,
                     "message" => "Sukses login",

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Rest;
 
 use App\Http\Requests\Profile\changePhotoProfileRequest;
 use App\Http\Requests\Profile\ChangePasswordRequest;
-use App\Http\Requests\Profile\ChangeNameRequest;
+use App\Http\Requests\Profile\ChangeProfileRequest;
 use App\Http\Requests\Profile\ChangeBioRequest;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\NotFoundException;
@@ -23,17 +23,24 @@ class ProfileController extends Controller
         $this->firebaseStorage = new FirebaseStorage($storage);
     }
 
-    public function changeName(ChangeNameRequest $request)
+    public function changeProfile(ChangeProfileRequest $request)
     {
         $user = User::find(auth()->user()->id);
         if (is_null($user)) {
             throw new NotFoundException('Akun tidak ditemukan');
         }
         $user->full_name = $request->validated('full_name');
+        $user->phone_number = $request->validated('phone_number');
         $user->save();
+
+        if(!is_null($user->photo_profile)) {
+            $user->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F$user->photo_profile?alt=media";            
+        }
+        
         return response()->json([
             'status' => 200,
-            'message' => 'Berhasil mengubah nama profile'
+            'message' => 'Berhasil mengubah profil',
+            'data' => $user
         ], 200);
     }
 
@@ -71,7 +78,10 @@ class ProfileController extends Controller
 
         return response()->json([
             'status' => 200,
-            'message' => 'Berhasil mengubah foto profil anda'
+            'message' => 'Berhasil mengubah foto profil anda',
+            'data' => [
+                "photo_profile" => "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F$user->photo_profile?alt=media"
+            ]
         ], 200);
     }
 

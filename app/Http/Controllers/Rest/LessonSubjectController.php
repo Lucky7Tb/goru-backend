@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\LessonSubject\Admin\LessonSubjectUpdateThumbnailRequest;
-use App\Http\Requests\LessonSubject\Admin\LessonSubjectRequest;
+use App\Http\Requests\Admin\LessonSubject\LessonSubjectUpdateThumbnailRequest;
+use App\Http\Requests\Admin\LessonSubject\LessonSubjectRequest;
 use Kreait\Firebase\Contract\Storage;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
@@ -44,6 +44,7 @@ class LessonSubjectController extends Controller
         if (is_null($lessonSubject)) throw new NotFoundException('Mata pelajaran tidak ditemukan');
 
         if ($lessonSubject->thumbnail !== null) {
+
             $lessonSubject->thumbnail = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/lesson_subjects%2F$lessonSubject->thumbnail?alt=media";
         }
 
