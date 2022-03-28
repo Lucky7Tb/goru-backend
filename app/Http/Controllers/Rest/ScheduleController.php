@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Rest;
 use App\Http\Requests\Teacher\UpdateScheduleMeetEvidanceRequest;
 use App\Http\Requests\Teacher\UpdateScheduleMeetLinkRequest;
 use App\Http\Requests\Teacher\UpdateTeacherScheduleRequest;
+use App\Http\Requests\Student\UpdateStudentScheduleRequest;
 use App\Exceptions\NotAcceptableException;
 use App\Exceptions\NotFoundException;
 use Kreait\Firebase\Contract\Storage;
@@ -196,6 +197,112 @@ class ScheduleController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Sukses mengubah bukti meeting'
+        ], 200);
+    }
+
+    public function getStudentSchedule(){
+        $schedules = Schedule::select('id', 'student_id', 'teacher_package_id', 'from_date', 'to_date', 'status', 'note')
+            ->with([
+                'package:id,package',
+                'teacher:id,full_name,phone_number'
+            ])
+            ->where('student_id', auth()->user()->id)
+            ->when(request('status'), function($query) {
+                return $query->where('status', request('status'));
+            })
+            ->when(request('package'), function($query) {
+                return $query->whereHas('package', function($q) {
+                    return $q->where('package', request('package'));
+                });
+            })
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengambil jadwal kamu',
+            'data' => $schedules
+        ]);
+    }
+
+    public function getStudentScheduleDetail(string $scheduleId){
+        $schedule = Schedule::select('id')->find($scheduleId);
+        if (is_null($schedule)) {
+            throw new NotFoundException('Jadwal anda tidak ditemukan');
+        }
+
+        $scheduleDetails = ScheduleDetail::select('id', 'schedule_id', 'date', 'from_time', 'to_time', 'status', 'note', 'meet_evidance', 'meet_link')
+            ->where('schedule_id', $schedule->id)
+            ->when(request('status'), function($query) {
+                return $query->where('status', request('status'));
+            })
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengambil detail dari jadwal kamu',
+            'data' => $scheduleDetails
+        ]);
+    }
+
+    public function updateStudentScheduleDetail(string $scheduleId, string $scheduleDetailId, UpdateStudentScheduleRequest $request)
+    {
+        $schedule = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id')->find($scheduleId);
+        if (is_null($schedule)) {
+            throw new NotFoundException('Jadwal anda tidak ditemukan');
+        }
+
+        $scheduleDetails = ScheduleDetail::select('id')->find($scheduleDetailId);
+        if (is_null($scheduleDetails)) {
+            throw new NotFoundException('Detail jadwal anda tidak ditemukan');
+        }
+
+        $updatedScheduleDetailData = $request->validated();
+        $scheduleDetails->note = $updatedScheduleDetailData['note'];
+        $scheduleDetails->status = $updatedScheduleDetailData['status'];
+        $scheduleDetails->save();
+
+        $rejectedScheduleDetail = ScheduleDetail::where([
+            'schedule_id' => $scheduleId,
+            'status' => 'rejected'
+        ])->count();
+        $inReviewScheduleDetail = ScheduleDetail::where([
+            'schedule_id' => $scheduleId,
+            'status' => 'in_review'
+        ])->count();
+
+        if ($rejectedScheduleDetail == 0 && $inReviewScheduleDetail == 0) {
+            Schedule::find($scheduleId)->update([
+                'status' => 'accepted'
+            ]);
+            $scheduleDetails = ScheduleDetail::select('from_time', 'to_time')
+                ->where('schedule_id', $scheduleId)
+                ->get();
+            $teacherPackage = TeacherPackage::select('price_per_hour', 'encounter')
+                ->find($schedule->teacher_package_id);
+            $totalPrice = 0;
+
+            for ($i=0; $i < $teacherPackage->encounter; $i++) { 
+                $fromTime = explode(':', $scheduleDetails[$i]['from_time'])[0];
+                $toTime = explode(':', $scheduleDetails[$i]['to_time'])[0];
+                $hour = intval($toTime) - intval($fromTime);
+                $totalPrice += $hour *  $teacherPackage->price_per_hour;
+            }
+
+            Transaction::create([
+                'student_id' => $schedule->student_id,
+                'teacher_id' => $schedule->teacher_id,
+                'teacher_package_id' => $schedule->teacher_package_id,
+                'schedule_id' => $schedule->id,
+                'price_per_hour' => $teacherPackage->price_per_hour,
+                'total_price' => $totalPrice,
+                'status' => 'not_paid_yet'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Sukses mengubah status jadwal'
         ], 200);
     }
 }
