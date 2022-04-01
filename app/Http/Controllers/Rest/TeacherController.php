@@ -50,8 +50,9 @@ class TeacherController extends Controller
                 'from_time' => $scheduleData['from_time'],
                 'to_time' => $scheduleData['to_time']
             ];
+
         }
-        ScheduleDetail::create($scheduleDetailData);
+        ScheduleDetail::insert($scheduleDetailData);
 
         return response()->json([
             'status' => 200,

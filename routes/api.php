@@ -14,7 +14,7 @@ Route::controller(\App\Http\Controllers\Rest\ProfileController::class)
     ->prefix('/profile')
     ->middleware(['auth:sanctum'])
     ->group(function() {
-        Route::put('/', 'changeName');
+        Route::put('/', 'changeProfile');
         Route::put('/bio', 'changeBio')->middleware(['is.teacher']);
         Route::post('/photo', 'changePhotoProfile');
         Route::put('/password', 'changePassword');
@@ -22,7 +22,6 @@ Route::controller(\App\Http\Controllers\Rest\ProfileController::class)
 
 
 Route::prefix('public')
-    ->middleware(['auth:sanctum'])
     ->group(function () {
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
         Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);

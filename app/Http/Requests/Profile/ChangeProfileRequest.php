@@ -3,8 +3,9 @@
 namespace App\Http\Requests\Profile;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class ChangeNameRequest extends FormRequest
+class ChangeProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +25,12 @@ class ChangeNameRequest extends FormRequest
     public function rules()
     {
         return [
-            'full_name' => ['required', 'string']
+            'full_name' => ['required', 'string'],
+            'phone_number' => [
+                "required",
+                "digits_between:10,15",
+                Rule::unique('users', 'phone_number')->ignore($this->user()->id)
+            ],
         ];
     }
 }
