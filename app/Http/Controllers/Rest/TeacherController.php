@@ -9,9 +9,17 @@ use App\Models\TeacherPackage;
 use App\Models\ScheduleDetail;
 use App\Models\Schedule;
 use App\Models\User;
+use App\Firebase\FirebaseStorage;
+use Kreait\Firebase\Contract\Storage;
 
 class TeacherController extends Controller
 {
+    private $firebaseStorage;
+
+    public function __construct(Storage $storage) {
+        $this->firebaseStorage = new FirebaseStorage($storage);
+    }
+
     public function hireTeacher(HireTeacherRequest $hireTeacherRequest, string $teacherId)
     {
         $requestedScheduleData = $hireTeacherRequest->validated();
@@ -58,5 +66,25 @@ class TeacherController extends Controller
             'status' => 200,
             'message' => 'Berhasil menyewa guru, silahkan tunggu konfirmasi dari guru'
         ]);
+    }
+
+    public function getTeacher()
+    {
+        
+    }
+
+    public function getDetailTeacher()
+    {
+        
+    }
+
+    public function getRecomendedTeacher()
+    {
+        
+    }
+
+    public function getTeacherByFilter()
+    {
+        
     }
 }

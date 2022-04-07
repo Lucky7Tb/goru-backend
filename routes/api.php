@@ -121,6 +121,13 @@ Route::middleware(['auth:sanctum', 'is.student'])
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
 
+            Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
+            ->prefix('transaction')
+            ->group(function () {
+                Route::get('/', 'getAllTransaction');
+                Route::put('/{transactionId}', 'updateTransactionStudent');
+            });
+
             Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
             ->prefix('schedule')
             ->group(function () {

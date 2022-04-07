@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Rest;
 
 use App\Http\Requests\Admin\UpdateScheduleStatusRequest;
+use App\Http\Requests\Student\updateTransactionStudent;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -81,4 +82,26 @@ class TransactionController extends Controller
             'message' => 'Berhasil mengupdate status transaksi'
         ]);
     }
+
+    public function updateTransactionStudent(string $transactionId, updateTransactionStudent $request)
+    {
+        $updatedTransactionData = $request->validated('application_bank_account');
+
+        $transaction = Transaction::select('id')->find($transactionId);
+        if (is_null($transaction)) {
+            throw new NotFoundException('Transaksi tidak ditemukan');
+        }
+
+        $transaction->update([
+        'application_bank_account' => $updatedTransactionData['application_bank_account'],
+            'evidance' => $updatedTransactionData['evidance'],
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengupdate status transaksi'
+        ]);
+    }
+
+
 }
