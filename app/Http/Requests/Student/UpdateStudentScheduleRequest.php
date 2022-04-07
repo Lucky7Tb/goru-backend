@@ -24,14 +24,10 @@ class UpdateStudentScheduleRequest extends FormRequest
     public function rules()
     {
         return [
-            'note' => [
-                'required',
-                'string'
-            ],
-            'status' => [
-                'required',
-                'in:rejected,accepted'
-            ],
+            'date' => ['required', 'date', 'date_format:Y-m-d'],
+            'from_time' => ['required', 'string', 'date_format:H:i'],
+            'to_time' => ['required', 'string', 'date_format:H:i'],
+            'note' => ['string'],
         ];
     }
 }

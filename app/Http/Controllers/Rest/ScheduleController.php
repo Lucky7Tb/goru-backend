@@ -89,6 +89,12 @@ class ScheduleController extends Controller
         $scheduleDetails->status = $updatedScheduleDetailData['status'];
         $scheduleDetails->save();
 
+        if ($updatedScheduleDetailData['status'] !== 'accepted') {
+            Schedule::find($scheduleId)->update([
+                'status' => $updatedScheduleDetailData['status']
+            ]);
+        }
+
         $rejectedScheduleDetail = ScheduleDetail::where([
             'schedule_id' => $scheduleId,
             'status' => 'rejected'
@@ -109,7 +115,7 @@ class ScheduleController extends Controller
                 ->find($schedule->teacher_package_id);
             $totalPrice = 0;
 
-            for ($i=0; $i < $teacherPackage->encounter; $i++) { 
+            for ($i=0; $i < $teacherPackage->encounter; $i++) {
                 $fromTime = explode(':', $scheduleDetails[$i]['from_time'])[0];
                 $toTime = explode(':', $scheduleDetails[$i]['to_time'])[0];
                 $hour = intval($toTime) - intval($fromTime);
@@ -133,7 +139,7 @@ class ScheduleController extends Controller
         ], 200);
     }
 
-    public function updateScheduleMeetLink(string $scheduleId, string $scheduleDetailId, UpdateScheduleMeetLinkRequest $request) 
+    public function updateScheduleMeetLink(string $scheduleId, string $scheduleDetailId, UpdateScheduleMeetLinkRequest $request)
     {
         $meetLink = $request->validated('meet_link');
 
@@ -169,7 +175,7 @@ class ScheduleController extends Controller
         ], 200);
     }
 
-    public function updateScheduleMeetEvidance(string $scheduleId, string $scheduleDetailId, UpdateScheduleMeetEvidanceRequest $request) 
+    public function updateScheduleMeetEvidance(string $scheduleId, string $scheduleDetailId, UpdateScheduleMeetEvidanceRequest $request)
     {
 
         $schedule = Schedule::select('id')
@@ -201,10 +207,10 @@ class ScheduleController extends Controller
     }
 
     public function getStudentSchedule(){
-        $schedules = Schedule::select('id', 'student_id', 'teacher_package_id', 'from_date', 'to_date', 'status', 'note')
+        $schedules = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id', 'from_date', 'to_date', 'status', 'note')
             ->with([
                 'package:id,package',
-                'teacher:id,full_name,phone_number'
+                'teacher:id,full_name,phone_number,photo_profile'
             ])
             ->where('student_id', auth()->user()->id)
             ->when(request('status'), function($query) {
@@ -217,6 +223,20 @@ class ScheduleController extends Controller
             })
             ->orderBy('created_at', 'ASC')
             ->get();
+
+        if (count($schedules) > 0) {
+          foreach ($schedules as $index => $schedule) {
+                if (!is_null($schedule->teacher->photo_profile)) {
+                    if ($index !== 0) {
+                        if ($schedule->teacher->id == $schedules[$index - 1]->teacher->id) {
+                            continue;
+                        }
+                    }
+
+                    $schedules[$index]->teacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F".$schedule->teacher->photo_profile."?alt=media";
+                }
+            }
+        }
 
         return response()->json([
             'status' => 200,
@@ -231,12 +251,22 @@ class ScheduleController extends Controller
             throw new NotFoundException('Jadwal anda tidak ditemukan');
         }
 
-        $scheduleDetails = ScheduleDetail::select('id', 'schedule_id', 'date', 'from_time', 'to_time', 'status', 'note', 'meet_evidance', 'meet_link')
-            ->where('schedule_id', $schedule->id)
-            ->when(request('status'), function($query) {
-                return $query->where('status', request('status'));
-            })
-            ->get();
+        $scheduleDetails = Schedule::select('id', 'teacher_id','status')
+            ->with([
+                'scheduleDetail:id,schedule_id,date,from_time,to_time,note,meet_link,status',
+                'transaction:id,schedule_id,status',
+                'teacher:id,full_name,phone_number,photo_profile',
+                'teacher.teacherLessonSubject:id,lesson_subject_id,user_id',
+                'teacher.teacherLessonSubject.lessonSubject:id,name'
+            ])
+            ->find($schedule->id);
+
+        if (is_null($scheduleDetails->teacher->photo_profile)) {
+            $scheduleDetails->teacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2Fuser.png?alt=media";
+            
+        } else {
+            $scheduleDetails->teacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F".$scheduleDetails->teacher->photo_profile."?alt=media";
+        }
 
         return response()->json([
             'status' => 200,
@@ -258,51 +288,15 @@ class ScheduleController extends Controller
         }
 
         $updatedScheduleDetailData = $request->validated();
-        $scheduleDetails->note = $updatedScheduleDetailData['note'];
-        $scheduleDetails->status = $updatedScheduleDetailData['status'];
-        $scheduleDetails->save();
-
-        $rejectedScheduleDetail = ScheduleDetail::where([
-            'schedule_id' => $scheduleId,
-            'status' => 'rejected'
-        ])->count();
-        $inReviewScheduleDetail = ScheduleDetail::where([
-            'schedule_id' => $scheduleId,
+        $updatedScheduleDetailData['status'] = 'in_review';
+        $scheduleDetails->update($updatedScheduleDetailData);
+        $schedule->update([
             'status' => 'in_review'
-        ])->count();
-
-        if ($rejectedScheduleDetail == 0 && $inReviewScheduleDetail == 0) {
-            Schedule::find($scheduleId)->update([
-                'status' => 'accepted'
-            ]);
-            $scheduleDetails = ScheduleDetail::select('from_time', 'to_time')
-                ->where('schedule_id', $scheduleId)
-                ->get();
-            $teacherPackage = TeacherPackage::select('price_per_hour', 'encounter')
-                ->find($schedule->teacher_package_id);
-            $totalPrice = 0;
-
-            for ($i=0; $i < $teacherPackage->encounter; $i++) { 
-                $fromTime = explode(':', $scheduleDetails[$i]['from_time'])[0];
-                $toTime = explode(':', $scheduleDetails[$i]['to_time'])[0];
-                $hour = intval($toTime) - intval($fromTime);
-                $totalPrice += $hour *  $teacherPackage->price_per_hour;
-            }
-
-            Transaction::create([
-                'student_id' => $schedule->student_id,
-                'teacher_id' => $schedule->teacher_id,
-                'teacher_package_id' => $schedule->teacher_package_id,
-                'schedule_id' => $schedule->id,
-                'price_per_hour' => $teacherPackage->price_per_hour,
-                'total_price' => $totalPrice,
-                'status' => 'not_paid_yet'
-            ]);
-        }
+        ]);
 
         return response()->json([
             'status' => 200,
-            'message' => 'Sukses mengubah status jadwal'
+            'message' => 'Sukses mengubah jadwal anda'
         ], 200);
     }
 }

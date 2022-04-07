@@ -121,7 +121,7 @@ Route::middleware(['auth:sanctum', 'is.student'])
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
 
-            Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
+        Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
             ->prefix('schedule')
             ->group(function () {
                 Route::get('/', 'getStudentSchedule');
