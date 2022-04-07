@@ -14,6 +14,11 @@ class ScheduleDetail extends Model
         'id'
     ];
 
+    protected $casts = [
+        'from_time' => 'datetime:H:i',
+        'to_time' => 'datetime:H:i'
+    ];
+
     public static function boot()
     {
         parent::boot();

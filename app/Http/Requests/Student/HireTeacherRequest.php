@@ -25,7 +25,7 @@ class HireTeacherRequest extends FormRequest
     {
         return [
             'package_id' => ['required', 'uuid'],
-            'note' => ['string', 'max:100'],
+            'note' => ['max:100'],
             'schedules' => ['required', 'array'],
             'schedules.*.date' => ['required', 'date', 'date_format:Y-m-d'],
             'schedules.*.from_time' => ['required', 'string', 'date_format:H:i'],

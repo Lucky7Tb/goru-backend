@@ -35,16 +35,21 @@ class Schedule extends Model
 
     public function student()
     {
-        return $this->belongsTo(User::class)->where("role", "student");
+        return $this->belongsTo(User::class, 'student_id')->where("role", "student");
     }
 
     public function teacher()
     {
-        return $this->belongsTo(User::class)->where("role", "teacher");
+        return $this->belongsTo(User::class, 'teacher_id')->where("role", "teacher");
     }
 
     public function transaction() 
     {
         return $this->hasOne(Transaction::class);
+    }
+
+    public function scheduleDetail()
+    {
+        return $this->hasMany(ScheduleDetail::class);
     }
 }

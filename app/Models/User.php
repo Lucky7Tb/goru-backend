@@ -74,4 +74,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(TeacherPackage::class);
     }
+
+    public function teacherLessonSubject()
+    {
+        return $this->hasMany(TeacherLessonSubject::class);
+    }
 }
