@@ -6,6 +6,7 @@ use App\Http\Requests\Student\HireTeacherRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherPackage;
+use App\Models\TeacherDocumentAdditional;
 use App\Models\ScheduleDetail;
 use App\Models\Schedule;
 use App\Models\User;
@@ -70,17 +71,63 @@ class TeacherController extends Controller
 
     public function getTeacher()
     {
-        
+        $getTeachers = User::select('id','full_name','photo_profile','bio')
+        ->where('role', '=', 'teacher')
+        ->get();
+
+        foreach ($getTeachers as $getTeacher){
+            if($getTeacher->photo_profile !== null){
+                $getTeacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profile%2F$getTeacher->photo_profile?alt=media";
+            }
+        }
+
+        return response()->json([
+            'message' => 'Sukses menagambil list guru',
+            'data' => $getTeacher
+        ], 200);
     }
 
-    public function getDetailTeacher()
+    public function getDetailTeacher($idTeacher)
     {
-        
+        $getTeacher = User::select('id')
+        ->find($idTeacher);
+        if (is_null($getTeacher)) {
+            throw new NotFoundException('data tidak ditemukan');
+        }
+
+        $teacherDetails = User::select('id','full_name','bio','identity_photo','photo_profile' )
+        ->with([
+            'teacherLessonSubject:id,lesson_subject_id,user_id',
+            'teacherLessonSubject.lessonSubject:id,name',
+            'teacherDocumentAdditional:id,user_id,document'
+        ])->find($getTeacher->id);
+
+        if (is_null($teacherDetails->photo_profile)) {
+            $teacherDetails->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2Fuser.png?alt=media";
+            
+        } else {
+            $teacherDetails->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F".$teacherDetails->teacher->photo_profile."?alt=media";
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengambil detail guru',
+            'data' => $teacherDetails
+        ]);
+
     }
 
     public function getRecomendedTeacher()
     {
-        
+        $getTeachersRecomend = User::select('id','is_recomended')
+        ->where('role', '=', 'teacher')
+        ->where('is_recomended' , true)
+        ->get();
+
+        return response()->json([
+            'message' => 'Sukses menagambil rekomendasi guru',
+            'data' => $getTeachersRecomend
+        ], 200);
     }
 
     public function getTeacherByFilter()

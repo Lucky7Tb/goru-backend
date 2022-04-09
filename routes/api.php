@@ -25,6 +25,8 @@ Route::prefix('public')
     ->group(function () {
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
         Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);
+        Route::get('/teacher', [\App\Http\Controllers\Rest\TeacherController::class, 'getTeacher']);
+        Route::get('/teacher/{idTeacher}', [\App\Http\Controllers\Rest\TeacherController::class, 'getDetailTeacher']);
     });
 
 
@@ -121,7 +123,6 @@ Route::middleware(['auth:sanctum', 'is.student'])
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
 
-<<<<<<< HEAD
             Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
             ->prefix('transaction')
             ->group(function () {
@@ -130,9 +131,6 @@ Route::middleware(['auth:sanctum', 'is.student'])
             });
 
             Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
-=======
-        Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
->>>>>>> 5a0b5e76d415ecbbc185d8f9b0a0f58a0321be89
             ->prefix('schedule')
             ->group(function () {
                 Route::get('/', 'getStudentSchedule');
