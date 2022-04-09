@@ -21,7 +21,8 @@ class ScheduleController extends Controller
 {
     private $firebaseStorage;
 
-    public function __construct(Storage $storage) {
+    public function __construct(Storage $storage)
+    {
         $this->firebaseStorage = new FirebaseStorage($storage);
     }
 
@@ -33,11 +34,11 @@ class ScheduleController extends Controller
                 'student:id,full_name,phone_number'
             ])
             ->where('teacher_id', auth()->user()->id)
-            ->when(request('status'), function($query) {
+            ->when(request('status'), function ($query) {
                 return $query->where('status', request('status'));
             })
-            ->when(request('package'), function($query) {
-                return $query->whereHas('package', function($q) {
+            ->when(request('package'), function ($query) {
+                return $query->whereHas('package', function ($q) {
                     return $q->where('package', request('package'));
                 });
             })
@@ -60,7 +61,7 @@ class ScheduleController extends Controller
 
         $scheduleDetails = ScheduleDetail::select('id', 'schedule_id', 'date', 'from_time', 'to_time', 'status', 'note', 'meet_evidance', 'meet_link')
             ->where('schedule_id', $schedule->id)
-            ->when(request('status'), function($query) {
+            ->when(request('status'), function ($query) {
                 return $query->where('status', request('status'));
             })
             ->get();
@@ -108,19 +109,20 @@ class ScheduleController extends Controller
             Schedule::find($scheduleId)->update([
                 'status' => 'accepted'
             ]);
-            $scheduleDetails = ScheduleDetail::select('from_time', 'to_time')
+            $scheduleDetails = ScheduleDetail::select('id', 'from_time', 'to_time')
                 ->where('schedule_id', $scheduleId)
                 ->get();
             $teacherPackage = TeacherPackage::select('price_per_hour', 'encounter')
                 ->find($schedule->teacher_package_id);
             $totalPrice = 0;
 
-            for ($i=0; $i < $teacherPackage->encounter; $i++) {
-                $fromTime = explode(':', $scheduleDetails[$i]['from_time'])[0];
-                $toTime = explode(':', $scheduleDetails[$i]['to_time'])[0];
-                $hour = intval($toTime) - intval($fromTime);
-                $totalPrice += $hour *  $teacherPackage->price_per_hour;
+            for ($i = 0; $i < $teacherPackage->encounter; $i++) {
+                $hour = $scheduleDetails[$i]['to_time']->diffInHours($scheduleDetails[$i]['from_time']);
+                $totalPrice += $hour * $teacherPackage->price_per_hour;
             }
+
+            $adminPrice = $totalPrice * (10/100);
+            $totalPrice += $adminPrice; 
 
             Transaction::create([
                 'student_id' => $schedule->student_id,
@@ -156,7 +158,7 @@ class ScheduleController extends Controller
             throw new NotFoundException('Detail jadwal anda tidak ditemukan');
         }
 
-        switch($schedule->transaction->status) {
+        switch ($schedule->transaction->status) {
             case 'not_paid_yet':
                 throw new NotAcceptableException('Siswa belum melakukan pembayaran');
             case 'paid':
@@ -190,7 +192,7 @@ class ScheduleController extends Controller
             throw new NotFoundException('Detail jadwal anda tidak ditemukan');
         }
 
-        if(today() < $scheduleDetails->date) {
+        if (today() < $scheduleDetails->date) {
             throw new NotAcceptableException('Anda hanya bisa menambahkan bukti meet jika jadwal pembelajaran 1 hari setelah jadwal');
         }
 
@@ -206,37 +208,24 @@ class ScheduleController extends Controller
         ], 200);
     }
 
-    public function getStudentSchedule(){
+    public function getStudentSchedule()
+    {
         $schedules = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id', 'from_date', 'to_date', 'status', 'note')
             ->with([
                 'package:id,package',
                 'teacher:id,full_name,phone_number,photo_profile'
             ])
             ->where('student_id', auth()->user()->id)
-            ->when(request('status'), function($query) {
+            ->when(request('status'), function ($query) {
                 return $query->where('status', request('status'));
             })
-            ->when(request('package'), function($query) {
-                return $query->whereHas('package', function($q) {
+            ->when(request('package'), function ($query) {
+                return $query->whereHas('package', function ($q) {
                     return $q->where('package', request('package'));
                 });
             })
             ->orderBy('created_at', 'ASC')
             ->get();
-
-        if (count($schedules) > 0) {
-          foreach ($schedules as $index => $schedule) {
-                if (!is_null($schedule->teacher->photo_profile)) {
-                    if ($index !== 0) {
-                        if ($schedule->teacher->id == $schedules[$index - 1]->teacher->id) {
-                            continue;
-                        }
-                    }
-
-                    $schedules[$index]->teacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F".$schedule->teacher->photo_profile."?alt=media";
-                }
-            }
-        }
 
         return response()->json([
             'status' => 200,
@@ -245,13 +234,14 @@ class ScheduleController extends Controller
         ]);
     }
 
-    public function getStudentScheduleDetail(string $scheduleId){
+    public function getStudentScheduleDetail(string $scheduleId)
+    {
         $schedule = Schedule::select('id')->find($scheduleId);
         if (is_null($schedule)) {
             throw new NotFoundException('Jadwal anda tidak ditemukan');
         }
 
-        $scheduleDetails = Schedule::select('id', 'teacher_id','status')
+        $scheduleDetails = Schedule::select('id', 'teacher_id', 'status')
             ->with([
                 'scheduleDetail:id,schedule_id,date,from_time,to_time,note,meet_link,status',
                 'transaction:id,schedule_id,status',
@@ -260,13 +250,6 @@ class ScheduleController extends Controller
                 'teacher.teacherLessonSubject.lessonSubject:id,name'
             ])
             ->find($schedule->id);
-
-        if (is_null($scheduleDetails->teacher->photo_profile)) {
-            $scheduleDetails->teacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2Fuser.png?alt=media";
-            
-        } else {
-            $scheduleDetails->teacher->photo_profile = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/photo_profiles%2F".$scheduleDetails->teacher->photo_profile."?alt=media";
-        }
 
         return response()->json([
             'status' => 200,
@@ -291,6 +274,8 @@ class ScheduleController extends Controller
         $updatedScheduleDetailData['status'] = 'in_review';
         $scheduleDetails->update($updatedScheduleDetailData);
         $schedule->update([
+            'from_date' => $updatedScheduleDetailData['date'],
+            'to_date' => $updatedScheduleDetailData['date'],
             'status' => 'in_review'
         ]);
 

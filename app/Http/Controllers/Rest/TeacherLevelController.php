@@ -35,7 +35,7 @@ class TeacherLevelController extends Controller
         ])->get(['id'])->count();
 
         if ($teacherLevel == 1) {
-           throw new AlreadyTakenException('Kamu sudah mengambil jenjang pendidikan ini');
+            throw new AlreadyTakenException('Kamu sudah mengambil jenjang pendidikan ini');
         }
 
         TeacherLevel::create([

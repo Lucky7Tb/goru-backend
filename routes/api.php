@@ -13,7 +13,7 @@ Route::controller(\App\Http\Controllers\Rest\AuthController::class)
 Route::controller(\App\Http\Controllers\Rest\ProfileController::class)
     ->prefix('/profile')
     ->middleware(['auth:sanctum'])
-    ->group(function() {
+    ->group(function () {
         Route::put('/', 'changeProfile');
         Route::put('/bio', 'changeBio')->middleware(['is.teacher']);
         Route::post('/photo', 'changePhotoProfile');
@@ -22,7 +22,9 @@ Route::controller(\App\Http\Controllers\Rest\ProfileController::class)
 
 
 Route::prefix('public')
+    ->middleware(['auth:sanctum'])
     ->group(function () {
+        Route::get('/bank-account', [\App\Http\Controllers\Rest\ApplicationBankAccountController::class, 'getAllBankAccount']);
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
         Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);
     });
@@ -31,6 +33,14 @@ Route::prefix('public')
 Route::middleware(['auth:sanctum', 'is.admin'])
     ->prefix('admin')
     ->group(function () {
+        Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
+            ->prefix('transaction')
+            ->group(function () {
+                Route::get('/', 'getAllTransaction');
+                Route::get('/{transactionId}', 'getOneTransaction');
+                Route::put('/{transactionId}', 'updateTransactionStatus');
+           });
+
         Route::controller(\App\Http\Controllers\Rest\ApplicationBankAccountController::class)
             ->prefix('bank-account')
             ->group(function () {
@@ -61,8 +71,6 @@ Route::middleware(['auth:sanctum', 'is.admin'])
                 Route::put('/{lessonSubjectId}', 'updateLessonSubject');
                 Route::delete('/{lessonSubjectId}', 'deleteLessonSubject');
             });
-
-        
     });
 
 Route::middleware(['auth:sanctum', 'is.teacher'])
@@ -120,6 +128,16 @@ Route::middleware(['auth:sanctum', 'is.student'])
             ->group(function () {
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
+
+        Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
+            ->prefix('transaction')
+            ->group(function () {
+                Route::get('/', 'getAllTransaction');
+                Route::get('/{transactionId}', 'getOneTransaction');
+                Route::put('/{transactionId}/changeTransaferMethod', 'changeTransferMethodStudent');
+                Route::post('/{transactionId}/uploadTranferEvidance', 'uploadTransferEvidanceStudent');
+            });
+
 
         Route::controller(\App\Http\Controllers\Rest\ScheduleController::class)
             ->prefix('schedule')

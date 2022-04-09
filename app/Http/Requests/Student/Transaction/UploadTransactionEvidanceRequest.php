@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Student\Transaction;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateScheduleStatusRequest extends FormRequest
+class UploadTransactionEvidanceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class UpdateScheduleStatusRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth("sanctum")->check() && request()->user()->role === 'Admin';
+        return auth('sanctum')->check() && request()->user()->role === 'Student';
     }
 
     /**
@@ -24,14 +24,7 @@ class UpdateScheduleStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'status' => [
-                'required',
-                'in:trouble,paid,rejected'
-            ],
-            'note_evidance' => [
-                'required',
-                'string'
-            ]
+            'evidance' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2024']
         ];
     }
 }

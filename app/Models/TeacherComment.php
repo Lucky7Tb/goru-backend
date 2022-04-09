@@ -12,7 +12,7 @@ class TeacherComment extends Model
     protected $guarded = ['id'];
 
     public function comment(){
-
+        return $this->belongsTo(TeacherComment::where('teacher_id', auth()->user()->id)->get());
     }
 
     public function teacher()

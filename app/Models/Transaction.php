@@ -18,7 +18,7 @@ class Transaction extends Model
 
     public function applicationBank()
     {
-        return $this->belongsTo(ApplicationBankAccount::class);
+        return $this->belongsTo(ApplicationBankAccount::class, 'application_bank_account_id');
     }
 
     public function teacherPackage()
@@ -33,11 +33,11 @@ class Transaction extends Model
 
     public function student()
     {
-        return $this->belongsTo(User::class)->where('role', 'student');
+        return $this->belongsTo(User::class, 'student_id')->where('role', 'student');
     }
 
     public function teacher()
     {
-        return $this->belongsTo(User::class)->where('role', 'teacher');
+        return $this->belongsTo(User::class, 'teacher_id')->where('role', 'teacher');
     }
 }

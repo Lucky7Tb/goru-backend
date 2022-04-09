@@ -2,32 +2,42 @@
 
 namespace App\Http\Controllers\Rest;
 
+use App\Http\Requests\Student\Transaction\UploadTransactionEvidanceRequest;
+use App\Http\Requests\Student\Transaction\UpdateTransaferMethodRequest;
 use App\Http\Requests\Admin\UpdateScheduleStatusRequest;
+use Illuminate\Support\Facades\Crypt;
+use Kreait\Firebase\Contract\Storage;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
+use App\Firebase\FirebaseStorage;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 
 class TransactionController extends Controller
 {
+    private $firebaseStorage;
+
+    public function __construct(Storage $storage)
+    {
+        $this->firebaseStorage = new FirebaseStorage($storage);
+    }
+
     public function getAllTransaction()
     {
-        $transactions = Transaction::select('id', 'teacher_package_id', 'application_bank_account_id', 'total_price', 'evidance', 'status', 'updated_at')
+        $transactions = Transaction::select('id', 'teacher_package_id', 'teacher_id', 'application_bank_account_id', 'total_price', 'status', 'updated_at')
             ->with([
                 'teacherPackage:id,package',
-                'applicationBank:id,name,number'
+                'teacher:id,full_name,phone_number,photo_profile',
+                'applicationBank:id,name,number',
             ])
             ->orderBy('created_at', 'ASC')
-            ->when(request('status'), function($query) {
+            ->when(request('status'), function ($query) {
                 return $query->where('status', '=', request('status'));
             })
+            ->when(auth()->user()->role == 'Student', function ($query) {
+                return $query->where('student_id', '=', auth()->user()->id);
+            })
             ->get();
-
-        foreach ($transactions as $transaction) {
-            if (!is_null($transaction->evidance)) {
-                $transaction->evidance = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/meet_evidances%2F$transaction->evidance?alt=media";
-            }
-        }
 
         return response()->json([
             'status' => 200,
@@ -39,8 +49,8 @@ class TransactionController extends Controller
     public function getOneTransaction(string $transactionId)
     {
         $transaction = Transaction::with([
-            'student:id,full_name',
-            'teacher:id,full_name',
+            'student:id,full_name,phone_number,photo_profile',
+            'teacher:id,full_name,phone_number,photo_profile',
             'teacherPackage:id,package',
             'schedule:id,from_date,to_date',
             'applicationBank:id,name,number,bank_logo',
@@ -49,10 +59,6 @@ class TransactionController extends Controller
 
         if (is_null($transaction)) {
             throw new NotFoundException('Transaksi tidak ditemukan');
-        }
-
-        if (!is_null($transaction->evidance)) {
-            $transaction->evidance = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/meet_evidances%2F$transaction->evidance?alt=media";
         }
 
         return response()->json([
@@ -80,5 +86,43 @@ class TransactionController extends Controller
             'status' => 200,
             'message' => 'Berhasil mengupdate status transaksi'
         ]);
+    }
+
+    public function changeTransferMethodStudent(string $transactionId, UpdateTransaferMethodRequest $request) 
+    {
+        $applicationBankAccountId = $request->validated('application_bank_account_id');
+
+        $transaction = Transaction::select('id')->find($transactionId);
+        if (is_null($transaction)) {
+            throw new NotFoundException('Transaksi tidak ditemukan');
+        }
+
+        $transaction->update(['application_bank_account_id' => $applicationBankAccountId]);
+
+        return response()
+            ->json([
+                'status' => 200,
+                'message' => 'Berhasil memilih bank untuk transfer'
+        ], 200);
+    }
+
+    public function uploadTransferEvidanceStudent(string $transactionId, UploadTransactionEvidanceRequest $request)
+    {
+        $transaction = Transaction::select('id', 'evidance')->find($transactionId);
+        if (is_null($transaction)) {
+            throw new NotFoundException('Transaksi tidak ditemukan');
+        }
+
+        $evidance = $request->file('evidance');
+        $evidanceFileName = $this->firebaseStorage->uploadFile($evidance, 'transaction_evidances/');
+        $transaction->update([
+            'evidance' => $evidanceFileName,
+            'status' => 'in_review'
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengupload bukti trasaksi'
+        ], 200);
     }
 }

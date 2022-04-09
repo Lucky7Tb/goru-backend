@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Level\Admin\LevelRequest;
+use App\Http\Requests\Admin\Level\LevelRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Level;

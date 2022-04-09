@@ -18,19 +18,18 @@ class ApplicationBankAccountController extends Controller
 {
     private $firebaseStorage;
 
-    public function __construct(Storage $storage) {
+    public function __construct(Storage $storage)
+    {
         $this->firebaseStorage = new FirebaseStorage($storage);
     }
 
     public function getAllBankAccount()
     {
         $bankAccounts = ApplicationBankAccount::select('id', 'name', 'number', 'alias', 'bank_logo', 'is_active')
+            ->when(auth()->user()->role == 'Student', function($query) {
+                return $query->where('is_active', true);
+            })
             ->get();
-
-        foreach ($bankAccounts as $bankAccount) {
-            $bankAccount->bank_logo = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/bank_logos%2F$bankAccount->bank_logo?alt=media";
-            $bankAccount->number = Crypt::decryptString($bankAccount->number);
-        }
 
         return response()->json([
             'status' => 200,
@@ -52,7 +51,6 @@ class ApplicationBankAccountController extends Controller
         }
 
         $bankAccount->bank_logo = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/bank_logos%2F$bankAccount->bank_logo?alt=media";
-        $bankAccount->number = Crypt::decryptString($bankAccount->number);
 
         return response()->json([
             'status' => 200,

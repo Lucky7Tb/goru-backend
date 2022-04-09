@@ -71,7 +71,7 @@ class TeacherPackageController extends Controller
             throw new NotFoundException('Data paket tidak ditemukan');
         }
 
-        if($teacherPackage->package != TeacherPackage::PERDAY) {
+        if ($teacherPackage->package != TeacherPackage::PERDAY) {
             $teacherPackage->encounter = $updatedTeacherPackageData['encounter'];
         }
         $teacherPackage->price_per_hour = $updatedTeacherPackageData['price_per_hour'];

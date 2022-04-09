@@ -15,7 +15,8 @@ class TeacherDocumentAdditionalController extends Controller
 {
     private $firebaseStorage;
 
-    public function __construct(Storage $storage) {
+    public function __construct(Storage $storage)
+    {
         $this->firebaseStorage = new FirebaseStorage($storage);
     }
 
@@ -24,10 +25,6 @@ class TeacherDocumentAdditionalController extends Controller
         $teacherDocuments = TeacherDocumentAdditional::select('id', 'document')
             ->where('user_id', '=', auth()->user()->id)
             ->get();
-
-        foreach ($teacherDocuments as $teacherDocument) {
-            $teacherDocument->document = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/additional_documents%2F$teacherDocument->document?alt=media";
-        }
 
         return response()->json([
             'status' => 200,
@@ -43,7 +40,7 @@ class TeacherDocumentAdditionalController extends Controller
             ->where('user_id', '=', auth()->user()->id)
             ->count();
 
-        if($teacherDocuments == 3) {
+        if ($teacherDocuments == 3) {
             throw new NotAcceptableException('Maximun dokumen portofolio adalah 3');
         }
 

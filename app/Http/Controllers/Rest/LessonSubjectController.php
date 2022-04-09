@@ -15,7 +15,8 @@ class LessonSubjectController extends Controller
 
     private $firebaseStorage;
 
-    public function __construct(Storage $storage) {
+    public function __construct(Storage $storage)
+    {
         $this->firebaseStorage = new FirebaseStorage($storage);
     }
 
@@ -24,12 +25,6 @@ class LessonSubjectController extends Controller
         $lessonSubjects = LessonSubject::select('id', 'name', 'description', 'thumbnail')
             ->orderBy('created_at', 'desc')
             ->get();
-
-        foreach ($lessonSubjects as $lessonSubject) {
-            if ($lessonSubject->thumbnail !== null) {
-                $lessonSubject->thumbnail = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/lesson_subjects%2F$lessonSubject->thumbnail?alt=media";
-            }
-        }
 
         return response()->json([
             'message' => 'Sukses mengambil mata pelajaran guru',
@@ -42,11 +37,6 @@ class LessonSubjectController extends Controller
         $lessonSubject = LessonSubject::select(['id', 'name', 'description'])
             ->find($lessonSubjectId);
         if (is_null($lessonSubject)) throw new NotFoundException('Mata pelajaran tidak ditemukan');
-
-        if ($lessonSubject->thumbnail !== null) {
-
-            $lessonSubject->thumbnail = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/lesson_subjects%2F$lessonSubject->thumbnail?alt=media";
-        }
 
         return response()->json([
             'message' => 'Sukses mengambil mata pelajaran guru',
