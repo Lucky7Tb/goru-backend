@@ -6,6 +6,7 @@ use App\Http\Requests\Student\HireTeacherRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherPackage;
+use App\Models\TeacherDocumentAdditional;
 use App\Models\ScheduleDetail;
 use App\Models\Schedule;
 use App\Models\User;
@@ -70,21 +71,73 @@ class TeacherController extends Controller
 
     public function getTeacher()
     {
-        
+        $teachers = User::select('id','full_name','photo_profile','bio')
+        ->with([
+            'teacherLessonSubject:user_id,lesson_subject_id',
+            'teacherLessonSubject.lessonSubject:id,name',
+        ])
+        ->when(request('name'), function ($query) {
+            $seacrTerm = request('name');
+            return $query->orWhere('full_name', 'ILIKE', "%{$seacrTerm}%");
+        })
+        ->when(request('lesson_subject_id'), function ($query) {
+            return $query->whereHas('teacherLessonSubject', function ($q) {
+                return $q->where('lesson_subject_id', request('lesson_subject_id'));
+            });
+        })
+        ->when(request('level_id'), function ($query) {
+            return $query->whereHas('teacherLevel', function ($q) {
+                return $q->where('level_id', request('level_id')); 
+            });
+        })
+        ->where('role', '=', 'teacher')
+        ->get();
+
+        return response()->json([
+            'message' => 'Sukses mengambil list guru',
+            'data' => $teachers
+        ], 200);
     }
 
-    public function getDetailTeacher()
+    public function getDetailTeacher(string $idTeacher)
     {
-        
+        $getTeacher = User::select('id')->find($idTeacher);
+        if (is_null($getTeacher)) {
+            throw new NotFoundException('data tidak ditemukan');
+        }
+
+        $teacherDetails = User::select('id','full_name','bio','identity_photo','photo_profile' )
+        ->with([
+            'teacherLessonSubject:id,lesson_subject_id,user_id',
+            'teacherLessonSubject.lessonSubject:id,name',
+            'teacherLevel:user_id,level_id',
+            'teacherLevel.level:id,name',
+            'teacherDocumentAdditional:id,user_id,document',
+        ])->find($getTeacher->id);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengambil detail guru',
+            'data' => $teacherDetails
+        ]);
+
     }
 
     public function getRecomendedTeacher()
     {
-        
+        $getTeachersRecomend = User::select('id','is_recomended')
+        ->where('role', '=', 'teacher')
+        ->where('is_recomended' , true)
+        ->get();
+
+        return response()->json([
+            'message' => 'Sukses menagambil rekomendasi guru',
+            'data' => $getTeachersRecomend
+        ], 200);
     }
 
     public function getTeacherByFilter()
     {
-        
+
     }
 }

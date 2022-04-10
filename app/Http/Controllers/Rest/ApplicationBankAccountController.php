@@ -26,8 +26,8 @@ class ApplicationBankAccountController extends Controller
     public function getAllBankAccount()
     {
         $bankAccounts = ApplicationBankAccount::select('id', 'name', 'number', 'alias', 'bank_logo', 'is_active')
-            ->when(auth()->user()->role == 'Student', function($query) {
-                return $query->where('is_active', true);
+            ->when(request('is_active'), function($query) {
+                return $query->where('is_active', request('is_active'));
             })
             ->get();
 

@@ -27,6 +27,13 @@ class User extends Authenticatable
         'is_recommended' => 'boolean',
     ];
 
+    protected $appends = ['rating'];
+
+    public function getRatingAttribute()
+    {
+        return intval(TeacherRating::where('teacher_id', '=', $this->attributes['id'])->avg('rating'));
+    }
+
     public function role(): Attribute
     {
         return new Attribute(
@@ -64,12 +71,7 @@ class User extends Authenticatable
     {
         return $query->where('role', '=', 'teacher');
     }
-
-    public function ratings()
-    {
-        return $this->hasMany(TeacherRating::class);
-    }
-
+    
     public function package()
     {
         return $this->hasMany(TeacherPackage::class);
@@ -78,5 +80,15 @@ class User extends Authenticatable
     public function teacherLessonSubject()
     {
         return $this->hasMany(TeacherLessonSubject::class);
+    }
+
+    public function teacherLevel()
+    {
+        return $this->hasMany(TeacherLevel::class);
+    }
+
+    public function teacherDocumentAdditional()
+    {
+        return $this->hasMany(TeacherDocumentAdditional::class);
     }
 }

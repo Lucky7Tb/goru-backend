@@ -22,11 +22,14 @@ Route::controller(\App\Http\Controllers\Rest\ProfileController::class)
 
 
 Route::prefix('public')
-    ->middleware(['auth:sanctum'])
     ->group(function () {
         Route::get('/bank-account', [\App\Http\Controllers\Rest\ApplicationBankAccountController::class, 'getAllBankAccount']);
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
         Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);
+        Route::get('/teacher', [\App\Http\Controllers\Rest\TeacherController::class, 'getTeacher']);
+        Route::get('/teacher/{idTeacher}', [\App\Http\Controllers\Rest\TeacherController::class, 'getDetailTeacher']);
+        Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
+
     });
 
 
