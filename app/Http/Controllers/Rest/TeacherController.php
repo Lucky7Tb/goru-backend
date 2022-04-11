@@ -103,16 +103,19 @@ class TeacherController extends Controller
     {
         $getTeacher = User::select('id')->find($idTeacher);
         if (is_null($getTeacher)) {
-            throw new NotFoundException('data tidak ditemukan');
+            throw new NotFoundException('Guru tidak ditemukan');
         }
 
-        $teacherDetails = User::select('id','full_name','bio','identity_photo','photo_profile' )
+        $teacherDetails = User::select('id','full_name','bio','photo_profile' )
         ->with([
             'teacherLessonSubject:id,lesson_subject_id,user_id',
-            'teacherLessonSubject.lessonSubject:id,name',
+            'teacherLessonSubject.lessonSubject:id,name,thumbnail',
             'teacherLevel:user_id,level_id',
             'teacherLevel.level:id,name',
             'teacherDocumentAdditional:id,user_id,document',
+            'package:id,user_id,package,price_per_hour',
+            'teacherComments:id,student_id,teacher_id,comment',
+            'teacherComments.student:id,full_name,photo_profile'
         ])->find($getTeacher->id);
 
         return response()->json([

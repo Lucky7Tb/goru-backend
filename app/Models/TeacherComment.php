@@ -15,8 +15,13 @@ class TeacherComment extends Model
         return $this->belongsTo(TeacherComment::where('teacher_id', auth()->user()->id)->get());
     }
 
+    public function student()
+    {
+        return $this->belongsTo(User::class, 'student_id')->where('role', 'student');
+    }
+
     public function teacher()
     {
-        return $this->belongsTo(User::class)->where('role', 'teacher');
+        return $this->belongsTo(User::class, 'teacher_id')->where('role', 'teacher');
     }
 }

@@ -91,4 +91,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(TeacherDocumentAdditional::class);
     }
+
+    public function teacherComments()
+    {
+        return $this->hasMany(TeacherComment::class, 'teacher_id');
+    }
 }
