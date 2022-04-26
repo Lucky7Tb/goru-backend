@@ -34,7 +34,7 @@ class LessonSubjectController extends Controller
 
     public function getOneLessonSubject($lessonSubjectId)
     {
-        $lessonSubject = LessonSubject::select(['id', 'name', 'description'])
+        $lessonSubject = LessonSubject::select(['id', 'name', 'description', 'thumbnail'])
             ->find($lessonSubjectId);
         if (is_null($lessonSubject)) throw new NotFoundException('Mata pelajaran tidak ditemukan');
 

@@ -27,6 +27,7 @@ Route::prefix('public')
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
         Route::get('/lesson-subject', [\App\Http\Controllers\Rest\LessonSubjectController::class, 'getAllLessonSubject']);
         Route::get('/teacher', [\App\Http\Controllers\Rest\TeacherController::class, 'getTeacher']);
+        Route::get('/teacher/recommendation', [\App\Http\Controllers\Rest\TeacherController::class, 'getRecomendedTeacher']);
         Route::get('/teacher/{idTeacher}', [\App\Http\Controllers\Rest\TeacherController::class, 'getDetailTeacher']);
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
 

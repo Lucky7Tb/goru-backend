@@ -72,10 +72,10 @@ class TeacherController extends Controller
     public function getTeacher()
     {
         $teachers = User::select('id','full_name','photo_profile','bio')
-        ->with([
-            'teacherLessonSubject:user_id,lesson_subject_id',
-            'teacherLessonSubject.lessonSubject:id,name',
-        ])
+            ->with([
+                'teacherLessonSubject:user_id,lesson_subject_id',
+                'teacherLessonSubject.lessonSubject:id,name',
+            ])
         ->when(request('name'), function ($query) {
             $seacrTerm = request('name');
             return $query->orWhere('full_name', 'ILIKE', "%{$seacrTerm}%");
@@ -128,19 +128,18 @@ class TeacherController extends Controller
 
     public function getRecomendedTeacher()
     {
-        $getTeachersRecomend = User::select('id','is_recomended')
-        ->where('role', '=', 'teacher')
-        ->where('is_recomended' , true)
-        ->get();
+        $recommendedTeacher = User::select('id','full_name','photo_profile','bio')
+            ->with([
+                'teacherLessonSubject:user_id,lesson_subject_id',
+                'teacherLessonSubject.lessonSubject:id,name',
+            ])
+            ->where('role', '=', 'teacher')
+            ->where('recommended_until', '>=', today()->format('Y-m-d'))
+            ->get();
 
         return response()->json([
-            'message' => 'Sukses menagambil rekomendasi guru',
-            'data' => $getTeachersRecomend
+            'message' => 'Sukses mengambil rekomendasi guru',
+            'data' => $recommendedTeacher
         ], 200);
-    }
-
-    public function getTeacherByFilter()
-    {
-
     }
 }

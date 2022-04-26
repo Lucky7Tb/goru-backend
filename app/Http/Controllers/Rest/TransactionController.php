@@ -53,13 +53,22 @@ class TransactionController extends Controller
             'teacher:id,full_name,phone_number,photo_profile',
             'teacherPackage:id,package',
             'schedule:id,from_date,to_date',
+            'schedule.scheduleDetail:schedule_id,from_time,to_time',
             'applicationBank:id,name,number,bank_logo',
         ])
             ->find($transactionId);
+        $transaction->study_hour = 0;
 
         if (is_null($transaction)) {
             throw new NotFoundException('Transaksi tidak ditemukan');
         }
+
+        foreach ($transaction->schedule->scheduleDetail as $detail) {
+            $hour = $detail->to_time->diffInHours($detail->from_time);
+            $transaction->study_hour += $hour;
+        }
+
+        $transaction->admin_price = $transaction->total_price - ($transaction->study_hour * $transaction->price_per_hour);
 
         return response()->json([
             'status' => 200,

@@ -50,8 +50,6 @@ class ApplicationBankAccountController extends Controller
             throw new NotFoundException('Akun bank tidak ditemukan');
         }
 
-        $bankAccount->bank_logo = "https://firebasestorage.googleapis.com/v0/b/goru-ee0f3.appspot.com/o/bank_logos%2F$bankAccount->bank_logo?alt=media";
-
         return response()->json([
             'status' => 200,
             'message' => 'Berhasil mengambil akun bank',
