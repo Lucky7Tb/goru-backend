@@ -13,7 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        Schema::table('users', function (Blueprint $table) {
+            $table->addColumn('string', 'device_token')
+                ->length(255)
+                ->nullable();
+        });
     }
 
     /**
@@ -23,6 +27,8 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('device_token');
+        });
     }
 };

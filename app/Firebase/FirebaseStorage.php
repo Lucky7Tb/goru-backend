@@ -11,7 +11,8 @@ class FirebaseStorage
     private $storage;
     private $bucket;
 
-    public function __construct(Storage $storage) {
+    public function __construct(Storage $storage) 
+    {
         $this->storage = $storage;
         $this->bucket = $this->storage->getBucket();
     }

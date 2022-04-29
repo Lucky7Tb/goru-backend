@@ -6,7 +6,11 @@ use App\Http\Requests\Teacher\UpdateScheduleMeetEvidanceRequest;
 use App\Http\Requests\Teacher\UpdateScheduleMeetLinkRequest;
 use App\Http\Requests\Teacher\UpdateTeacherScheduleRequest;
 use App\Http\Requests\Student\UpdateStudentScheduleRequest;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use App\Exceptions\NotAcceptableException;
+use Kreait\Firebase\Contract\Messaging;
+use App\Firebase\FirebaseCloudMessage;
 use App\Exceptions\NotFoundException;
 use Kreait\Firebase\Contract\Storage;
 use App\Http\Controllers\Controller;
@@ -16,14 +20,17 @@ use App\Models\ScheduleDetail;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\Schedule;
+use PHPUnit\Framework\Error\Notice;
 
 class ScheduleController extends Controller
 {
     private $firebaseStorage;
+    private $firebaseCloudMessage;
 
-    public function __construct(Storage $storage)
+    public function __construct(Storage $storage, Messaging $messaging)
     {
         $this->firebaseStorage = new FirebaseStorage($storage);
+        $this->firebaseCloudMessage = new FirebaseCloudMessage($messaging);
     }
 
     public function getTeacherSchedule()
@@ -75,7 +82,12 @@ class ScheduleController extends Controller
 
     public function updateTeacherScheduleDetail(string $scheduleId, string $scheduleDetailId, UpdateTeacherScheduleRequest $request)
     {
-        $schedule = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id')->find($scheduleId);
+        $message = null;
+        $schedule = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id')
+            ->with([
+                'student:id,device_token'
+            ])
+            ->find($scheduleId);
         if (is_null($schedule)) {
             throw new NotFoundException('Jadwal anda tidak ditemukan');
         }
@@ -94,6 +106,18 @@ class ScheduleController extends Controller
             Schedule::find($scheduleId)->update([
                 'status' => $updatedScheduleDetailData['status']
             ]);
+
+            $message = CloudMessage::withTarget('token', $schedule->student->device_token)
+                ->withNotification(
+                    Notification::create('Jadwal kamu ditolak nih', 'Ayo atur ulang jadwal kamu', env('APP_LOGO'))
+                )
+                ->withData([
+                    'status' => 'error',
+                    'navigate' => 'ScheduleDetail',
+                    'param' => 'scheduleId',
+                    'value' => $schedule->id
+                ])
+                ->withDefaultSounds();
         }
 
         $rejectedScheduleDetail = ScheduleDetail::where([
@@ -121,10 +145,10 @@ class ScheduleController extends Controller
                 $totalPrice += $hour * $teacherPackage->price_per_hour;
             }
 
-            $adminPrice = $totalPrice * (10/100);
-            $totalPrice += $adminPrice; 
+            $adminPrice = $totalPrice * (10 / 100);
+            $totalPrice += $adminPrice;
 
-            Transaction::create([
+            $transaction = Transaction::create([
                 'student_id' => $schedule->student_id,
                 'teacher_id' => $schedule->teacher_id,
                 'teacher_package_id' => $schedule->teacher_package_id,
@@ -133,7 +157,20 @@ class ScheduleController extends Controller
                 'total_price' => $totalPrice,
                 'status' => 'not_paid_yet'
             ]);
+
+            $message = CloudMessage::withTarget('token', $schedule->student->device_token)
+                ->withNotification(
+                    Notification::create('Jadwal kamu diterima!', 'Ayo sekarang lanjutkan ke pembayaran', env('APP_LOGO'))
+                )
+                ->withData([
+                    'status' => 'success',
+                    'navigate' => 'TransactionDetail',
+                    'param' => 'transactionId',
+                    'value' => $transaction->id
+                ])->withDefaultSounds();
         }
+
+        $this->firebaseCloudMessage->sendNotification($message);
 
         return response()->json([
             'status' => 200,
@@ -145,8 +182,11 @@ class ScheduleController extends Controller
     {
         $meetLink = $request->validated('meet_link');
 
-        $schedule = Schedule::select('id')
-            ->with('transaction:id,schedule_id,status')
+        $schedule = Schedule::select('id', 'student_id')
+            ->with([
+                'transaction:id,schedule_id,status',
+                'student:id,device_token'
+            ])
             ->find($scheduleId);
         if (is_null($schedule)) {
             throw new NotFoundException('Jadwal anda tidak ditemukan');
@@ -165,6 +205,17 @@ class ScheduleController extends Controller
                 $scheduleDetails->update([
                     'meet_link' => $meetLink
                 ]);
+                $message = CloudMessage::withTarget('token', $schedule->student->device_token)
+                    ->withNotification(
+                        Notification::create('Link pembelajaran kamu sudah ada', 'Link belajar kamu tinggal disalin deh', env('APP_LOGO'))
+                    )
+                    ->withData([
+                        'status' => 'success',
+                        'navigate' => 'ScheduleDetail',
+                        'param' => 'scheduleId',
+                        'value' => $schedule->id
+                    ])
+                    ->withDefaultSounds();                $this->firebaseCloudMessage->sendNotification($message);
                 break;
             default:
                 throw new NotAcceptableException('Transaksi siswa sedang bermasalah, mohon tunggu');

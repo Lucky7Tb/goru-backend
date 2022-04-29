@@ -17,6 +17,11 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $credentials = $request->validated();
+        $deviceToken = null;
+        if (isset($credentials['device_token'])) {
+            $deviceToken = $credentials['device_token'];
+            unset($credentials['device_token']);
+        }
         $user = Auth::user();
 
         if (Auth::attempt($credentials)) {
@@ -26,6 +31,11 @@ class AuthController extends Controller
                 Auth::logout();
             } else {
                 $token = $user->createToken(env("APP_NAME"))->plainTextToken;
+                if ($user->role == "Student" || $user->role == "Teacher") {
+                    User::find($user->id)->update([
+                        'device_token' => $deviceToken
+                    ]);
+                }
                 return response()->json([
                     "status" => 200,
                     "message" => "Sukses login",
@@ -62,6 +72,9 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        User::find($request->user()->id)->update([
+            'device_token' => null
+        ]);
         $request->user()->currentAccessToken()->delete();
         return response()->json([
             "status" => 200,

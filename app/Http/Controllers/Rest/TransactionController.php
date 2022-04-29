@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Rest;
 use App\Http\Requests\Student\Transaction\UploadTransactionEvidanceRequest;
 use App\Http\Requests\Student\Transaction\UpdateTransaferMethodRequest;
 use App\Http\Requests\Admin\UpdateScheduleStatusRequest;
-use Illuminate\Support\Facades\Crypt;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Contract\Messaging;
+use App\Firebase\FirebaseCloudMessage;
 use Kreait\Firebase\Contract\Storage;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
@@ -16,10 +19,12 @@ use App\Models\Transaction;
 class TransactionController extends Controller
 {
     private $firebaseStorage;
+    private $firebaseCloudMessage;
 
-    public function __construct(Storage $storage)
+    public function __construct(Storage $storage, Messaging $messaging)
     {
         $this->firebaseStorage = new FirebaseStorage($storage);
+        $this->firebaseCloudMessage = new FirebaseCloudMessage($messaging);
     }
 
     public function getAllTransaction()
@@ -81,7 +86,12 @@ class TransactionController extends Controller
     {
         $updatedTransactionData = $request->validated();
 
-        $transaction = Transaction::select('id')->find($transactionId);
+        $transaction = Transaction::select('id', 'student_id')
+            ->with([
+                'student:id,device_token'
+            ])
+            ->find($transactionId);
+
         if (is_null($transaction)) {
             throw new NotFoundException('Transaksi tidak ditemukan');
         }
@@ -91,13 +101,41 @@ class TransactionController extends Controller
             'note_evidance' => $updatedTransactionData['note_evidance'],
         ]);
 
+        if ($updatedTransactionData['status'] !== 'paid') {
+            $message = CloudMessage::withTarget('token', $transaction->student->device_token)
+                ->withNotification(
+                    Notification::create('Yah pembayaran kamu ditolak', 'Ayo segera cek kenapa pembayaran kamu ditolak', env('APP_LOGO'))
+                )
+                ->withData([
+                    'status' => 'error',
+                    'navigate' => 'TransactionDetail',
+                    'param' => 'transactionId',
+                    'value' => $transaction->id
+                ])
+                ->withDefaultSounds();
+        } else {
+            $message = CloudMessage::withTarget('token', $transaction->student->device_token)
+                ->withNotification(
+                    Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh', env('APP_LOGO'))
+                )
+                ->withData([
+                    'status' => 'success',
+                    'navigate' => 'TransactionDetail',
+                    'param' => 'transactionId',
+                    'value' => $transaction->id
+                ])
+                ->withDefaultSounds();
+        }
+
+        $this->firebaseCloudMessage->sendNotification($message);
+
         return response()->json([
             'status' => 200,
             'message' => 'Berhasil mengupdate status transaksi'
         ]);
     }
 
-    public function changeTransferMethodStudent(string $transactionId, UpdateTransaferMethodRequest $request) 
+    public function changeTransferMethodStudent(string $transactionId, UpdateTransaferMethodRequest $request)
     {
         $applicationBankAccountId = $request->validated('application_bank_account_id');
 
@@ -112,7 +150,7 @@ class TransactionController extends Controller
             ->json([
                 'status' => 200,
                 'message' => 'Berhasil memilih bank untuk transfer'
-        ], 200);
+            ], 200);
     }
 
     public function uploadTransferEvidanceStudent(string $transactionId, UploadTransactionEvidanceRequest $request)
