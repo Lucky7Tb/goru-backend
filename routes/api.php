@@ -130,6 +130,7 @@ Route::middleware(['auth:sanctum', 'is.student'])
     ->group(function () {
         Route::prefix('teacher')
             ->group(function () {
+                Route::get('/history', [\App\Http\Controllers\Rest\TeacherController::class, 'getLastHireTeacher']);
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
             });
 

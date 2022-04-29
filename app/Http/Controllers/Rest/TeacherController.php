@@ -5,22 +5,14 @@ namespace App\Http\Controllers\Rest;
 use App\Http\Requests\Student\HireTeacherRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
-use App\Models\TeacherPackage;
-use App\Models\TeacherDocumentAdditional;
 use App\Models\ScheduleDetail;
+use App\Models\TeacherPackage;
 use App\Models\Schedule;
+use App\Models\Transaction;
 use App\Models\User;
-use App\Firebase\FirebaseStorage;
-use Kreait\Firebase\Contract\Storage;
 
 class TeacherController extends Controller
 {
-    private $firebaseStorage;
-
-    public function __construct(Storage $storage) {
-        $this->firebaseStorage = new FirebaseStorage($storage);
-    }
-
     public function hireTeacher(HireTeacherRequest $hireTeacherRequest, string $teacherId)
     {
         $requestedScheduleData = $hireTeacherRequest->validated();
@@ -87,7 +79,7 @@ class TeacherController extends Controller
         })
         ->when(request('level_id'), function ($query) {
             return $query->whereHas('teacherLevel', function ($q) {
-                return $q->where('level_id', request('level_id')); 
+                return $q->where('level_id', request('level_id'));
             });
         })
         ->where('role', '=', 'teacher')
@@ -138,8 +130,29 @@ class TeacherController extends Controller
             ->get();
 
         return response()->json([
+            'status' => 200,
             'message' => 'Sukses mengambil rekomendasi guru',
             'data' => $recommendedTeacher
         ], 200);
+    }
+
+    public function getLastHireTeacher()
+    {
+        $lastHireTeacher = Transaction::select('id', 'teacher_id')
+            ->with([
+                'teacher:id,full_name,photo_profile'
+            ])
+            ->where([
+                'status' => 'paid',
+                'student_id' => auth()->user()->id
+            ])
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Sukses mengambil 5 guru yang pernah di rekrut',
+            'data' => $lastHireTeacher
+        ]);
     }
 }
