@@ -104,7 +104,7 @@ class TransactionController extends Controller
         if ($updatedTransactionData['status'] !== 'paid') {
             $message = CloudMessage::withTarget('token', $transaction->student->device_token)
                 ->withNotification(
-                    Notification::create('Yah pembayaran kamu ditolak', 'Ayo segera cek kenapa pembayaran kamu ditolak', env('APP_LOGO'))
+                    Notification::create('Yah pembayaran kamu ditolak', 'Ayo segera cek kenapa pembayaran kamu ditolak')
                 )
                 ->withData([
                     'status' => 'error',
@@ -116,7 +116,7 @@ class TransactionController extends Controller
         } else {
             $message = CloudMessage::withTarget('token', $transaction->student->device_token)
                 ->withNotification(
-                    Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh', env('APP_LOGO'))
+                    Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh')
                 )
                 ->withData([
                     'status' => 'success',

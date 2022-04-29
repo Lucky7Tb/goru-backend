@@ -109,7 +109,7 @@ class ScheduleController extends Controller
 
             $message = CloudMessage::withTarget('token', $schedule->student->device_token)
                 ->withNotification(
-                    Notification::create('Jadwal kamu ditolak nih', 'Ayo atur ulang jadwal kamu', env('APP_LOGO'))
+                    Notification::create('Jadwal kamu ditolak nih', 'Ayo atur ulang jadwal kamu')
                 )
                 ->withData([
                     'status' => 'error',
@@ -160,7 +160,7 @@ class ScheduleController extends Controller
 
             $message = CloudMessage::withTarget('token', $schedule->student->device_token)
                 ->withNotification(
-                    Notification::create('Jadwal kamu diterima!', 'Ayo sekarang lanjutkan ke pembayaran', env('APP_LOGO'))
+                    Notification::create('Jadwal kamu diterima!', 'Ayo sekarang lanjutkan ke pembayaran')
                 )
                 ->withData([
                     'status' => 'success',
@@ -207,7 +207,7 @@ class ScheduleController extends Controller
                 ]);
                 $message = CloudMessage::withTarget('token', $schedule->student->device_token)
                     ->withNotification(
-                        Notification::create('Link pembelajaran kamu sudah ada', 'Link belajar kamu tinggal disalin deh', env('APP_LOGO'))
+                        Notification::create('Link pembelajaran kamu sudah ada', 'Link belajar kamu tinggal disalin deh')
                     )
                     ->withData([
                         'status' => 'success',
