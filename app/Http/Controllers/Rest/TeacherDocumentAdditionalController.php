@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Teacher\AddDocumentRequest;
+use App\Http\Requests\Teacher\Document\AddDocumentRequest;
 use App\Exceptions\NotAcceptableException;
 use App\Models\TeacherDocumentAdditional;
 use App\Exceptions\NotFoundException;
 use Kreait\Firebase\Contract\Storage;
 use App\Http\Controllers\Controller;
 use App\Firebase\FirebaseStorage;
-use Illuminate\Http\Request;
 
 class TeacherDocumentAdditionalController extends Controller
 {

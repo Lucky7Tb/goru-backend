@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Teacher\LessonSubject;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateScheduleMeetLinkRequest extends FormRequest
+class TeacherLessonSubjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,21 +13,19 @@ class UpdateScheduleMeetLinkRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth('sanctum')->check() && request()->user()->role === 'Teacher';
+        return auth("sanctum")->check() && request()->user()->role === 'Teacher';
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array
+     *
      */
     public function rules()
     {
         return [
-            'meet_link' => [
-                'required',
-                'url'
-            ]
+            'lesson_subject_id' => ['required', 'uuid']
         ];
     }
 }

@@ -30,7 +30,6 @@ Route::prefix('public')
         Route::get('/teacher/recommendation', [\App\Http\Controllers\Rest\TeacherController::class, 'getRecomendedTeacher']);
         Route::get('/teacher/{idTeacher}', [\App\Http\Controllers\Rest\TeacherController::class, 'getDetailTeacher']);
         Route::get('/level', [\App\Http\Controllers\Rest\LevelController::class, 'getAllLevel']);
-
     });
 
 
@@ -43,7 +42,7 @@ Route::middleware(['auth:sanctum', 'is.admin'])
                 Route::get('/', 'getAllTransaction');
                 Route::get('/{transactionId}', 'getOneTransaction');
                 Route::put('/{transactionId}', 'updateTransactionStatus');
-           });
+            });
 
         Route::controller(\App\Http\Controllers\Rest\ApplicationBankAccountController::class)
             ->prefix('bank-account')

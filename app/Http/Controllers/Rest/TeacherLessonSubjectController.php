@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Teacher\TeacherLessonSubjectRequest;
+use App\Http\Requests\Teacher\LessonSubject\TeacherLessonSubjectRequest;
 use App\Exceptions\AlreadyTakenException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherLessonSubject;
-use App\Exceptions\NotFoundException;
 use App\Models\LessonSubject;
 
 class TeacherLessonSubjectController extends Controller

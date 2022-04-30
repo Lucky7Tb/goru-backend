@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Teacher\Schedule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,9 +25,9 @@ class UpdateScheduleMeetEvidanceRequest extends FormRequest
     {
         return [
             'meet_evidance' => [
-                'required', 
-                'image', 
-                'mimes:png,jpg,jpeg', 
+                'required',
+                'image',
+                'mimes:png,jpg,jpeg',
                 'max:2024'
             ]
         ];

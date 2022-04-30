@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Student;
+namespace App\Http\Requests\Teacher\Schedule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GiveTeacherFeedbackRequest extends FormRequest
+class UpdateTeacherScheduleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class GiveTeacherFeedbackRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth("sanctum")->check() && request()->user()->role === 'Student';
+        return auth('sanctum')->check() && request()->user()->role === 'Teacher';
     }
 
     /**
@@ -23,18 +23,15 @@ class GiveTeacherFeedbackRequest extends FormRequest
      */
     public function rules()
     {
-        $validation = [
-            'rating' => [
-                'required',
-                'min:1',
-                'integer',
-                'between: 1,5'
-            ],
-            'comment' => [
+        return [
+            'note' => [
                 'required',
                 'string'
-            ]
-            ];
-        return $validation;
+            ],
+            'status' => [
+                'required',
+                'in:rejected,accepted'
+            ],
+        ];
     }
 }

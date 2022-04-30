@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Teacher\Schedule;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTeacherScheduleRequest extends FormRequest
+class UpdateScheduleMeetLinkRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,10 @@ class UpdateTeacherScheduleRequest extends FormRequest
     public function rules()
     {
         return [
-            'note' => [
+            'meet_link' => [
                 'required',
-                'string'
-            ],
-            'status' => [
-                'required',
-                'in:rejected,accepted'
-            ],
+                'url'
+            ]
         ];
     }
 }

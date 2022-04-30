@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Teacher\UpdateScheduleMeetEvidanceRequest;
-use App\Http\Requests\Teacher\UpdateScheduleMeetLinkRequest;
-use App\Http\Requests\Teacher\UpdateTeacherScheduleRequest;
-use App\Http\Requests\Student\UpdateStudentScheduleRequest;
+use App\Http\Requests\Teacher\Schedule\UpdateScheduleMeetEvidanceRequest;
+use App\Http\Requests\Teacher\Schedule\UpdateScheduleMeetLinkRequest;
+use App\Http\Requests\Student\Schedule\UpdateStudentScheduleRequest;
+use App\Http\Requests\Teacher\Schedule\UpdateTeacherScheduleRequest;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use App\Exceptions\NotAcceptableException;
@@ -17,10 +17,8 @@ use App\Http\Controllers\Controller;
 use App\Firebase\FirebaseStorage;
 use App\Models\TeacherPackage;
 use App\Models\ScheduleDetail;
-use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\Schedule;
-use PHPUnit\Framework\Error\Notice;
 
 class ScheduleController extends Controller
 {
@@ -215,7 +213,8 @@ class ScheduleController extends Controller
                         'param' => 'scheduleId',
                         'value' => $schedule->id
                     ])
-                    ->withDefaultSounds();                $this->firebaseCloudMessage->sendNotification($message);
+                    ->withDefaultSounds();
+                $this->firebaseCloudMessage->sendNotification($message);
                 break;
             default:
                 throw new NotAcceptableException('Transaksi siswa sedang bermasalah, mohon tunggu');

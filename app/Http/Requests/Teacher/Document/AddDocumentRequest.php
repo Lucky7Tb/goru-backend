@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Teacher;
+namespace App\Http\Requests\Teacher\Document;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TeacherLessonSubjectRequest extends FormRequest
+class AddDocumentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,12 +20,11 @@ class TeacherLessonSubjectRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array
-     *
      */
     public function rules()
     {
         return [
-            'lesson_subject_id' => ['required', 'uuid']
+            'document' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2024']
         ];
     }
 }

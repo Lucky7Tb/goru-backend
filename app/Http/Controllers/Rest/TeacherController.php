@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Student\HireTeacherRequest;
+use App\Http\Requests\Student\Teacher\HireTeacherRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\ScheduleDetail;
 use App\Models\TeacherPackage;
-use App\Models\Schedule;
 use App\Models\Transaction;
+use App\Models\Schedule;
 use App\Models\User;
 
 class TeacherController extends Controller

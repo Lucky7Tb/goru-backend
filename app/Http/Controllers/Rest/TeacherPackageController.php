@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Teacher\TeacherPackageRequest;
+use App\Http\Requests\Teacher\Package\TeacherPackageRequest;
 use App\Exceptions\AlreadyTakenException;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
-use App\Http\Middleware\Teacher;
 use App\Models\TeacherPackage;
 
 class TeacherPackageController extends Controller

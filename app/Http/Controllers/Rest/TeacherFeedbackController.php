@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Student\GiveTeacherFeedbackRequest;
+use App\Http\Requests\Student\Feedback\GiveTeacherFeedbackRequest;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherComment;
@@ -11,6 +11,11 @@ use App\Models\User;
 
 class TeacherFeedbackController extends Controller
 {
+    public function getTeacherFeedback()
+    {
+
+    }
+
     public function giveTeacherFeedback(GiveTeacherFeedbackRequest $teacherFeedbacks, string $teacherId)
     {
         $teacherFeedbackData = $teacherFeedbacks->validate();

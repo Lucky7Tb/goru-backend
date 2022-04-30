@@ -12,7 +12,6 @@ use Kreait\Firebase\Contract\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Firebase\FirebaseStorage;
-use Illuminate\Http\Request;
 use App\Models\User;
 
 class ProfileController extends Controller

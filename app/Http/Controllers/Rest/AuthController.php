@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Exceptions\ForbiddenException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Exceptions\NotFoundException;
-use App\Exceptions\ForbiddenException;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\TeacherPackage;
+use Illuminate\Http\Request;
+use App\Models\User;
 
 class AuthController extends Controller
 {
