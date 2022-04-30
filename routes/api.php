@@ -132,6 +132,7 @@ Route::middleware(['auth:sanctum', 'is.student'])
             ->group(function () {
                 Route::get('/history', [\App\Http\Controllers\Rest\TeacherController::class, 'getLastHireTeacher']);
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
+                Route::post('/{teacherId}/feedback', [\App\Http\Controllers\Rest\TeacherFeedback::class, 'giveTeacherFeedback']);
             });
 
         Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
