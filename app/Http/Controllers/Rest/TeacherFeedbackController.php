@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\GiveTeacherFeedbackRequest;
-use App\Models\TeacherComment;
-use App\Models\TeacherRating as ModelsTeacherRating;
-use App\Models\User;
 use App\Exceptions\NotFoundException;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\TeacherComment;
+use App\Models\TeacherRating;
+use App\Models\User;
 
-class TeacherFeedback extends Controller
+class TeacherFeedbackController extends Controller
 {
-    public function giveTeacherFeedback(GiveTeacherFeedbackRequest $teacherFeedbacks , string $teacherId){
+    public function giveTeacherFeedback(GiveTeacherFeedbackRequest $teacherFeedbacks, string $teacherId)
+    {
         $teacherFeedbackData = $teacherFeedbacks->validate();
 
         $teacher = User::select('id')->find($teacherId);
         if (is_null($teacher)) throw new NotFoundException('Guru tidak ditemukan');
 
 
-        ModelsTeacherRating::create([
+        TeacherRating::create([
             'student_id' => auth()->user()->id,
             'teacher_id' => $teacher->id,
             'rating' => $teacherFeedbackData['rating']
@@ -36,8 +36,4 @@ class TeacherFeedback extends Controller
             'message' => 'Berhasil memberi feedback',
         ]);
     }
-    
-
-
-    
 }
