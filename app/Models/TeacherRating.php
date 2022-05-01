@@ -4,15 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class TeacherRating extends Model
 {
     use HasFactory;
 
-    protected $guarded = [
-        'id'
-    ];
+    protected $guarded = ['id'];
 
     public function student()
     {
@@ -29,7 +26,6 @@ class TeacherRating extends Model
         parent::boot();
 
         self::creating(function ($model) {
-            $model->id = Str::uuid();
             $model->created_at = now('Asia/Jakarta');
             $model->updated_at = now('Asia/Jakarta');
         });

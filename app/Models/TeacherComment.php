@@ -4,17 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class TeacherComment extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
-
-    protected $fillable = [
-        'comment'
-    ];
 
     public function comment(){
         return $this->belongsTo(TeacherComment::where('teacher_id', auth()->user()->id)->get());
@@ -35,7 +30,6 @@ class TeacherComment extends Model
         parent::boot();
 
         self::creating(function ($model) {
-            $model->id = Str::uuid();
             $model->created_at = now('Asia/Jakarta');
             $model->updated_at = now('Asia/Jakarta');
         });

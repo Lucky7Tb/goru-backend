@@ -36,6 +36,20 @@ Route::prefix('public')
 Route::middleware(['auth:sanctum', 'is.admin'])
     ->prefix('admin')
     ->group(function () {
+        Route::controller(\App\Http\Controllers\Rest\DashboardController::class)
+            ->prefix('dashboard')
+            ->group(function () {
+                Route::get('/', 'getTotalUserAndTransaction');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\UserController::class)
+            ->prefix('user')
+            ->group(function () {
+                Route::get('/student', 'getListStudent');
+                Route::get('/teacher', 'getListTeacher');
+                Route::put('/teacher/{teacherId}/recommendation-date', 'updateRecommendationTeacherDate');
+            });
+
         Route::controller(\App\Http\Controllers\Rest\TransactionController::class)
             ->prefix('transaction')
             ->group(function () {
@@ -131,7 +145,7 @@ Route::middleware(['auth:sanctum', 'is.student'])
             ->group(function () {
                 Route::get('/history', [\App\Http\Controllers\Rest\TeacherController::class, 'getLastHireTeacher']);
                 Route::post('/{teacherId}/hire', [\App\Http\Controllers\Rest\TeacherController::class, 'hireTeacher']);
-                Route::post('/{teacherId}/feedback', [\App\Http\Controllers\Rest\TeacherFeedback::class, 'giveTeacherFeedback']);
+                Route::post('/{teacherId}/feedback', [\App\Http\Controllers\Rest\TeacherFeedbackController::class, 'giveTeacherFeedback']);
             });
 
         Route::controller(\App\Http\Controllers\Rest\TransactionController::class)

@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('schedules', function (Blueprint $table) {
-            $table->addColumn('TINYINTEGER', 'is_already_feedback')
-                ->unsigned()
-                ->default(0)
-                ->after('note');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('identity_photo');
         });
     }
 
@@ -28,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('schedules', function (Blueprint $table) {
-            $table->dropColumn('is_already_feedback');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('identity_photo', 50)->nullable();
         });
     }
 };

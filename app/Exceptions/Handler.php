@@ -71,13 +71,5 @@ class Handler extends ExceptionHandler
                 'message' => 'Kamu belum login, harap login terlebih dahulu',
             ], 401);
         });
-
-        $this->renderable(function (InvalidArgumentException $e) {
-            return response()->json([
-                'status' => 500,
-                'message' => 'Gagal mengupload file',
-                'stack' => $e->getMessage()
-            ], 500);
-        });
     }
 }

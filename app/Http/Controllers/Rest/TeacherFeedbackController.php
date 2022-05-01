@@ -7,6 +7,7 @@ use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherComment;
 use App\Models\TeacherRating;
+use App\Models\Schedule;
 use App\Models\User;
 
 class TeacherFeedbackController extends Controller
@@ -16,13 +17,12 @@ class TeacherFeedbackController extends Controller
 
     }
 
-    public function giveTeacherFeedback(GiveTeacherFeedbackRequest $teacherFeedbacks, string $teacherId)
+    public function giveTeacherFeedback(string $teacherId, GiveTeacherFeedbackRequest $teacherFeedbacks)
     {
-        $teacherFeedbackData = $teacherFeedbacks->validate();
+        $teacherFeedbackData = $teacherFeedbacks->validated();
 
         $teacher = User::select('id')->find($teacherId);
         if (is_null($teacher)) throw new NotFoundException('Guru tidak ditemukan');
-
 
         TeacherRating::create([
             'student_id' => auth()->user()->id,
@@ -36,9 +36,14 @@ class TeacherFeedbackController extends Controller
             'comment' => $teacherFeedbackData['comment']
         ]);
 
+        Schedule::find($teacherFeedbackData['schedule_id'])
+            ->update([
+                'is_already_feedback' => 1
+            ]);
+
         return response()->json([
             'status' => 200,
-            'message' => 'Berhasil memberi feedback',
+            'message' => 'Berhasil memberi feedback kepada guru',
         ]);
     }
 }

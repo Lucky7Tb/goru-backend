@@ -19,6 +19,7 @@ use App\Models\TeacherPackage;
 use App\Models\ScheduleDetail;
 use App\Models\Transaction;
 use App\Models\Schedule;
+use App\Models\User;
 
 class ScheduleController extends Controller
 {
@@ -252,6 +253,30 @@ class ScheduleController extends Controller
             'meet_evidance' => $fileName
         ]);
 
+        $scheduleDetailMeetEvidance = ScheduleDetail::select('id')
+            ->where('schedule_id', '=', $scheduleId)
+            ->where('meet_evidance', '=', null)
+            ->count();
+
+        if ($scheduleDetailMeetEvidance == 0) {
+            $transaction = Transaction::select('id', 'schedule_id', 'price_per_hour')
+                ->with([
+                    'schedule:id',
+                    'schedule.scheduleDetail:schedule_id,from_time,to_time',
+                ])
+                ->where('schedule_id', '=', $scheduleId)->first();
+            $studyHour = 0;
+
+            foreach ($transaction->schedule->scheduleDetail as $detail) {
+                $hour = $detail->to_time->diffInHours($detail->from_time);
+                $studyHour += $hour;
+            }
+
+            $teacherWalletPrice = $studyHour * $transaction->price_per_hour;
+
+            User::find(auth()->user()->id)->increment('wallet', $teacherWalletPrice);
+        }
+
         return response()->json([
             'status' => 200,
             'message' => 'Sukses mengubah bukti meeting'
@@ -291,7 +316,7 @@ class ScheduleController extends Controller
             throw new NotFoundException('Jadwal anda tidak ditemukan');
         }
 
-        $scheduleDetails = Schedule::select('id', 'teacher_id', 'status')
+        $scheduleDetails = Schedule::select('id', 'teacher_id', 'status', 'is_already_feedback')
             ->with([
                 'scheduleDetail:id,schedule_id,date,from_time,to_time,note,meet_link,status',
                 'transaction:id,schedule_id,status',

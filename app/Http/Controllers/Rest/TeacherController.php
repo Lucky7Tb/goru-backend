@@ -108,7 +108,11 @@ class TeacherController extends Controller
             'package:id,user_id,package,price_per_hour',
             'teacherComments:id,student_id,teacher_id,comment',
             'teacherComments.student:id,full_name,photo_profile'
-        ])->find($getTeacher->id);
+        ])
+        ->whereHas('teacherComments', function ($query) { 
+          $query->limit(1);
+        })
+        ->find($getTeacher->id);
 
         return response()->json([
             'status' => 200,

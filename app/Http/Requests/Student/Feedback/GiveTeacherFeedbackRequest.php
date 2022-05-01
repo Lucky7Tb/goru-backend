@@ -24,16 +24,29 @@ class GiveTeacherFeedbackRequest extends FormRequest
     public function rules()
     {
         return [
-            'rating' => [
-                'required',
-                'min:1',
-                'integer',
-                'between: 1,5'
-            ],
-            'comment' => [
-                'required',
-                'string'
-            ]
+            'schedule_id' => ['required', 'integer'],
+            'comment' => ['required', 'string', 'max:100'],
+            'rating' => ['required', 'min:1', 'integer', 'between:1,5'],
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'schedule_id.required' => 'Id jadwal tidak boleh kosong',
+            'schedule_id.integer' => 'Id jadwal haruslah angka',
+            'comment.required' => 'Komen tidak boleh kosong',
+            'comment.string' => 'Komen tidak boleh berupa angka',
+            'comment.max' => 'Komen tidak boleh lebih dari 100 karakter',
+            'rating.required' => 'Rating tidak boleh kosong',
+            'rating.min' => 'Minimal rating adalah 1',
+            'rating.integer' => 'Rating haruslah berupa angka',
+            'rating.between' => 'Rating harus dalam skala 1-5'
         ];
     }
 }
