@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -51,7 +51,7 @@ class User extends Authenticatable
             $model->updated_at = now("Asia/Jakarta");
         });
 
-        self::updating(function($model) {
+        self::updating(function ($model) {
             $model->updated_at = now("Asia/Jakarta");
         });
     }
@@ -64,14 +64,13 @@ class User extends Authenticatable
     public function scopeIsStudent($query)
     {
         return $query->where('role', '=', 'student');
-
     }
 
     public function scopeIsTeacher($query)
     {
         return $query->where('role', '=', 'teacher');
     }
-    
+
     public function package()
     {
         return $this->hasMany(TeacherPackage::class);

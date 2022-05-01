@@ -88,6 +88,13 @@ Route::middleware(['auth:sanctum', 'is.admin'])
                 Route::put('/{lessonSubjectId}', 'updateLessonSubject');
                 Route::delete('/{lessonSubjectId}', 'deleteLessonSubject');
             });
+
+        Route::controller(\App\Http\Controllers\Rest\WalletController::class)
+            ->prefix('request-wallet')
+            ->group(function () {
+                Route::get('/', 'getListTeacherRequestWallet');
+                Route::post('/{requestWalletId}', 'updateTeacherRequestWalletEvidance');
+            });
     });
 
 Route::middleware(['auth:sanctum', 'is.teacher'])
@@ -135,6 +142,15 @@ Route::middleware(['auth:sanctum', 'is.teacher'])
                 Route::get('/', 'getDocument');
                 Route::post('/', 'addDocument');
                 Route::delete('/{documentId}', 'deleteDocument');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\WalletController::class)
+            ->prefix('wallet')
+            ->group(function () {
+                Route::get('/', 'getMyWallet');
+                Route::get('/request-wallet', 'getListTeacherRequestWallet');
+                Route::get('/request-wallet/{requestWallerId}', 'getOneTeacherRequestWallet');
+                Route::post('/request-wallet', 'createRequestWallet');
             });
     });
 
