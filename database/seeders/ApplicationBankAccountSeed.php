@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -19,7 +20,7 @@ class ApplicationBankAccountSeed extends Seeder
             [
                 "id" => Str::uuid(),
                 "name" => "BRI",
-                "number" => "08808993970968",
+                "number" => Crypt::encryptString("08808993970968"),
                 "alias" => "goru",
                 "bank_logo" => "BRI.png",
                 "is_active" => true,

@@ -11,7 +11,6 @@ use Kreait\Firebase\Contract\Storage;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
 use App\Firebase\FirebaseStorage;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ApplicationBankAccountController extends Controller
