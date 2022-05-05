@@ -30,4 +30,17 @@ class UpdateTransaferMethodRequest extends FormRequest
             ],
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'application_bank_account_id.required' => 'Bank harus dipilih',
+            'application_bank_account_id.uuid' => 'Format id bank salah',
+        ];
+    }
 }

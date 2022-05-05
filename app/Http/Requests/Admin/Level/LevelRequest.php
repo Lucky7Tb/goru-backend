@@ -28,4 +28,19 @@ class LevelRequest extends FormRequest
             'description' => ['required', 'string', 'max:100']
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'name.required' => 'Nama jenjang pendidikan tidak boleh kosong',
+            'name.max' => 'Nama jenjang pendidikan maksimal 50 karakter',
+            'description.required' => 'Deskripsi tidak boleh kosong',
+            'description.max' => 'Deskripsi maksimal 100 karakter',
+        ];
+    }
 }

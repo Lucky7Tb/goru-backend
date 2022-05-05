@@ -27,4 +27,19 @@ class UploadTransactionEvidanceRequest extends FormRequest
             'evidance' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2024']
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'evidance.required' => 'Bukti tidak boleh kosong',
+            'evidance.image' => 'Bukti haruslah gambar',
+            'evidance.mimes' => 'Format bukti harus(PNG|JPG|JPEG)',
+            'evidance.max' => 'Maksimal besaran bukti adalah 2MB',
+        ];
+    }
 }

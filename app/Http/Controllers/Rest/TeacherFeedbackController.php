@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Rest;
 
 use App\Http\Requests\Student\Feedback\GiveTeacherFeedbackRequest;
-use App\Exceptions\NotFoundException;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use App\Exceptions\BadRequestException;
+use Kreait\Firebase\Contract\Messaging;
+use App\Firebase\FirebaseCloudMessage;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\TeacherComment;
 use App\Models\TeacherRating;
@@ -13,12 +17,19 @@ use App\Models\User;
 
 class TeacherFeedbackController extends Controller
 {
+    private $firebaseCloudMessage;
+
+    public function __construct(Messaging $messaging)
+    {
+        $this->firebaseCloudMessage = new FirebaseCloudMessage($messaging);
+    }
+
     public function getTeacherFeedback()
     {
         $feedbackType = request('type');
         $feedback = [];
 
-        switch($feedbackType) {
+        switch ($feedbackType) {
             case 'all':
                 $comments = TeacherComment::select('id', 'student_id', 'comment')
                     ->with([
@@ -28,6 +39,7 @@ class TeacherFeedbackController extends Controller
                     ->when(request('limit'), function ($query) {
                         return $query->limit(request('limit'));
                     })
+                    ->orderBy('created_at', 'desc')
                     ->get();
                 $ratings = TeacherRating::select('id', 'student_id', 'rating')
                     ->with([
@@ -82,7 +94,7 @@ class TeacherFeedbackController extends Controller
     {
         $teacherFeedbackData = $teacherFeedbacks->validated();
 
-        $teacher = User::select('id')->find($teacherId);
+        $teacher = User::select('id', 'device_token')->find($teacherId);
         if (is_null($teacher)) throw new NotFoundException('Guru tidak ditemukan');
 
         TeacherRating::create([
@@ -101,6 +113,17 @@ class TeacherFeedbackController extends Controller
             ->update([
                 'is_already_feedback' => 1
             ]);
+
+        $message = CloudMessage::withTarget('token', $teacher->device_token)
+            ->withNotification(
+                Notification::create('Siswa sudah memberikan ulasannya', 'Ayo lihat ulasannya')
+            )
+            ->withData([
+                'status' => 'success',
+                'navigate' => 'Feedback'
+            ])
+            ->withDefaultSounds();
+        $this->firebaseCloudMessage->sendNotification($message);
 
         return response()->json([
             'status' => 200,

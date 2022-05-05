@@ -30,4 +30,21 @@ class UpdateApplicationBankAccountRequest extends FormRequest
             'is_active' => ['required', 'boolean'],
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'name.required' => 'Nama jenjang pendidikan tidak boleh kosong',
+            'number.required' => 'No rekening tidak boleh kosong',
+            'number.numeric' => 'No rekening haruslah angka',
+            'alias.required' => 'Thumbnail tidak boleh kosong',
+            'is_active.required' => 'Status aktif tidak boleh kosong',
+            'is_active.boolean' => 'Status aktif antara true atau false',
+        ];
+    }
 }

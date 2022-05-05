@@ -27,4 +27,19 @@ class ChangePhotoProfileRequest extends FormRequest
             'photo_profile' => ['required', 'image', 'mimes:png,jpg,jpeg', 'max:2024']
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'photo_profile.required' => 'Foto tidak boleh kosong',
+            'photo_profile.image' => 'Foto haruslah format gambar',
+            'photo_profile.mimes' => 'Format foto harus (PNG|JPG|JPEG)',
+            'photo_profile.max' => 'Ukuran foto maksimal 2MB'
+        ];
+    }
 }

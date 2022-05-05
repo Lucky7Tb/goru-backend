@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Rest;
 
 use App\Http\Requests\Student\Teacher\HireTeacherRequest;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use Kreait\Firebase\Contract\Messaging;
+use App\Firebase\FirebaseCloudMessage;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\ScheduleDetail;
@@ -13,6 +17,14 @@ use App\Models\User;
 
 class TeacherController extends Controller
 {
+
+    private $firebaseCloudMessage;
+
+    public function __construct(Messaging $messaging)
+    {
+        $this->firebaseCloudMessage = new FirebaseCloudMessage($messaging);
+    }
+
     public function hireTeacher(HireTeacherRequest $hireTeacherRequest, string $teacherId)
     {
         $requestedScheduleData = $hireTeacherRequest->validated();
@@ -20,7 +32,7 @@ class TeacherController extends Controller
         $teacherPackage = TeacherPackage::select('id', 'package', 'encounter')->find($requestedScheduleData['package_id']);
         if (is_null($teacherPackage)) throw new NotFoundException('Paket guru tidak ditemukan');
 
-        $teacher = User::select('id')->find($teacherId);
+        $teacher = User::select('id', 'device_token')->find($teacherId);
         if (is_null($teacher)) throw new NotFoundException('Guru tidak ditemukan');
 
         $scheduleData = [
@@ -30,7 +42,6 @@ class TeacherController extends Controller
            "note" => $requestedScheduleData['note'],
         ];
 
-        $schedule = new Schedule();
         if ($teacherPackage->package == TeacherPackage::PERDAY) {
             $scheduleData['from_date'] = $requestedScheduleData['schedules'][0]['date'];
             $scheduleData['to_date'] = $requestedScheduleData['schedules'][0]['date'];
@@ -53,7 +64,23 @@ class TeacherController extends Controller
             ];
 
         }
+
         ScheduleDetail::insert($scheduleDetailData);
+
+        if (!is_null($teacher->device_token)) {
+            $message = CloudMessage::withTarget('token', $teacher->device_token)
+                ->withNotification(
+                    Notification::create('Ada yang mau belajar sama kamu nih', 'Coba cek tanggal yang diajukan oleh siswanya yu')
+                )
+                ->withData([
+                    'status' => 'info',
+                    'navigate' => 'ScheduleDetail',
+                    'param' => 'scheduleId',
+                    'value' => $schedule->id
+                ])
+                ->withDefaultSounds();
+            $this->firebaseCloudMessage->sendNotification($message);
+        }
 
         return response()->json([
             'status' => 200,
@@ -109,7 +136,7 @@ class TeacherController extends Controller
             'teacherComments:id,student_id,teacher_id,comment',
             'teacherComments.student:id,full_name,photo_profile'
         ])
-        ->whereHas('teacherComments', function ($query) { 
+        ->whereHas('teacherComments', function ($query) {
           $query->limit(1);
         })
         ->find($getTeacher->id);

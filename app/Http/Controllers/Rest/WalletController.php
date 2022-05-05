@@ -130,12 +130,12 @@ class WalletController extends Controller
         {
             $message = CloudMessage::withTarget('token', $requestWallet->teacher->device_token)
                 ->withNotification(
-                    Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh')
+                    Notification::create('Request diterima', 'Kamu bisa cek isi saldo rekening kamu sekarang. Atau cek bukti transfer dari admin')
                 )
                 ->withData([
                     'status' => 'success',
-                    'navigate' => 'RequestWalletDetail',
-                    'param' => 'requestWalletId',
+                    'navigate' => 'Profile_Request_Wallet_Detail',
+                    'param' => 'requestId',
                     'value' => $requestWallet->id
                 ])
                 ->withDefaultSounds();

@@ -347,7 +347,11 @@ class ScheduleController extends Controller
 
     public function updateStudentScheduleDetail(string $scheduleId, string $scheduleDetailId, UpdateStudentScheduleRequest $request)
     {
-        $schedule = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id')->find($scheduleId);
+        $schedule = Schedule::select('id', 'student_id', 'teacher_id', 'teacher_package_id')
+            ->with([
+                'teacher:id,device_token'
+            ])
+            ->find($scheduleId);
         if (is_null($schedule)) {
             throw new NotFoundException('Jadwal anda tidak ditemukan');
         }
@@ -365,6 +369,21 @@ class ScheduleController extends Controller
             'to_date' => $updatedScheduleDetailData['date'],
             'status' => 'in_review'
         ]);
+
+        if (!is_null($schedule->teacher->device_token)) {
+            $message = CloudMessage::withTarget('token', $schedule->teacher->device_token)
+                ->withNotification(
+                    Notification::create('Murid kamu sudah ngajuin jadwal yang baru', 'Ayo cek kembali jadwalnya')
+                )
+                ->withData([
+                    'status' => 'success',
+                    'navigate' => 'ScheduleDetail',
+                    'param' => 'scheduleId',
+                    'value' => $schedule->id
+                ])
+                ->withDefaultSounds();
+            $this->firebaseCloudMessage->sendNotification($message);
+        }
 
         return response()->json([
             'status' => 200,

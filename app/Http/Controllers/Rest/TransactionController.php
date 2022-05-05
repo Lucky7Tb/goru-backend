@@ -85,9 +85,11 @@ class TransactionController extends Controller
     {
         $updatedTransactionData = $request->validated();
 
-        $transaction = Transaction::select('id', 'student_id')
+        $transaction = Transaction::select('id', 'student_id', 'teacher_id', 'schedule_id')
             ->with([
-                'student:id,device_token'
+                'student:id,device_token',
+                'teacher:id,device_token',
+                'schedule:id'
             ])
             ->find($transactionId);
 
@@ -100,9 +102,9 @@ class TransactionController extends Controller
             'note_evidance' => $updatedTransactionData['note_evidance'],
         ]);
 
-        if(!is_null($transaction->student->device_token)) {
+        if (!is_null($transaction->student->device_token)) {
             if ($updatedTransactionData['status'] !== 'paid') {
-                $message = CloudMessage::withTarget('token', $transaction->student->device_token)
+                $studentMessage = CloudMessage::withTarget('token', $transaction->student->device_token)
                     ->withNotification(
                         Notification::create('Yah pembayaran kamu ditolak', 'Ayo segera cek kenapa pembayaran kamu ditolak')
                     )
@@ -114,7 +116,7 @@ class TransactionController extends Controller
                     ])
                     ->withDefaultSounds();
             } else {
-                $message = CloudMessage::withTarget('token', $transaction->student->device_token)
+                $studentMessage = CloudMessage::withTarget('token', $transaction->student->device_token)
                     ->withNotification(
                         Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh')
                     )
@@ -126,8 +128,22 @@ class TransactionController extends Controller
                     ])
                     ->withDefaultSounds();
             }
+            $this->firebaseCloudMessage->sendNotification($studentMessage);
+        }
 
-            $this->firebaseCloudMessage->sendNotification($message);
+        if (!is_null($transaction->teacher->device_token) && $updatedTransactionData['status'] == 'paid') {
+            $teacherMessage = CloudMessage::withTarget('token', $transaction->teacher->device_token)
+                ->withNotification(
+                    Notification::create('Siswa sudah melakukan pembayaran', 'Ayo kamu jangan lupa buat ngasih link belajar ke siswa ya')
+                )
+                ->withData([
+                    'status' => 'success',
+                    'navigate' => 'ScheduleDetail',
+                    'param' => 'scheduleId',
+                    'value' => $transaction->schedule->id
+                ])
+                ->withDefaultSounds();
+            $this->firebaseCloudMessage->sendNotification($teacherMessage);
         }
 
         return response()->json([

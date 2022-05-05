@@ -34,4 +34,23 @@ class LessonSubjectRequest extends FormRequest
 
         return $validation;
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'name.required' => 'Nama jenjang pendidikan tidak boleh kosong',
+            'name.max' => 'Nama jenjang pendidikan maksimal 50 karakter',
+            'description.required' => 'Deskripsi tidak boleh kosong',
+            'description.max' => 'Deskripsi maksimal 100 karakter',
+            'thumbnail.required' => 'Thumbnail tidak boleh kosong',
+            'thumbnail.image' => 'Thumbnail harus berupa gambar',
+            'thumbnail.mimes' => 'Format gambar yang didukung berupa (PNG,JPG,JPEG)',
+            'thumbnail.max' => 'Gambar bukti transfer terlalu besar, Max 2MB',
+        ];
+    }
 }
