@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'goru.test'],
+    'allowed_origins' => explode(",", env('ALLOWED_ORIGIN')),
 
     'allowed_origins_patterns' => [],
 
