@@ -12,7 +12,9 @@ class TeacherPackageController extends Controller
 {
     public function getAllTeacherPackage()
     {
-        $teacherPackages = TeacherPackage::get(['id', 'package', 'price_per_hour', 'encounter', 'is_active']);
+        $teacherPackages = TeacherPackage::select('id', 'package', 'price_per_hour', 'encounter', 'is_active')
+            ->where('user_id', '=', auth()->user()->id)
+            ->get();
 
         return response()->json([
             'status' => 200,
@@ -23,7 +25,8 @@ class TeacherPackageController extends Controller
 
     public function getOneTeacherPackage(string $teacherPackageId)
     {
-        $teacherPackage = TeacherPackage::select(['id', 'package', 'price_per_hour', 'encounter', 'is_active'])->find($teacherPackageId);
+        $teacherPackage = TeacherPackage::select(['id', 'package', 'price_per_hour', 'encounter', 'is_active'])
+            ->find($teacherPackageId);
 
         if (is_null($teacherPackage)) {
             throw new NotFoundException('Data paket tidak ditemukan');

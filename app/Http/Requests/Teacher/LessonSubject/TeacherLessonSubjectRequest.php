@@ -28,4 +28,16 @@ class TeacherLessonSubjectRequest extends FormRequest
             'lesson_subject_id' => ['required', 'uuid']
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'lesson_subject_id.required' => 'Pilihan mata pelajaran tidak boleh kosong',
+        ];
+    }
 }

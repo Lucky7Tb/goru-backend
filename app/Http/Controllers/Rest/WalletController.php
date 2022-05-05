@@ -31,14 +31,24 @@ class WalletController extends Controller
 
     public function getListTeacherRequestWallet()
     {
-        $requestWallet = TeacherRequestWallet::select('id', 'user_id', 'bank_name', 'bank_account_number', 'request_ammount', 'evidance')
+        $requestWallet = TeacherRequestWallet::select('id', 'user_id', 'bank_name', 'bank_account_number', 'request_ammount', 'evidance', 'created_at')
             ->with([
                 'teacher:id,full_name,phone_number'
             ])
             ->when(auth()->user()->role === 'Teacher', function ($query) {
-                return $query->where('user_id', '=', auth()->user()->id);
+                return $query
+                    ->where('user_id', '=', auth()->user()->id)
+                    ->orderBy('created_at', 'desc');
             })
-            ->orderBy('created_at', 'asc')
+            ->when(auth()->user()->role === 'Admin', function ($query) {
+                return $query->orderBy('created_at', 'asc');
+            })
+            ->when(request('status') === 'not_transfer_yet', function ($query) {
+                return $query->where('evidance', '=', null);
+            })
+            ->when(request('status') === 'transfered', function ($query) {
+                return $query->where('evidance', '!=', null);
+            })
             ->get();
 
         return response()->json([
@@ -95,13 +105,18 @@ class WalletController extends Controller
 
     public function updateTeacherRequestWalletEvidance(int $requestWalletId, UpdateEvidanceRequestWalletRequest $request)
     {
-        $requestWallet = TeacherRequestWallet::select('id', 'user_id', 'request_ammount')
+        $requestWallet = TeacherRequestWallet::select('id', 'user_id', 'request_ammount', 'evidance')
             ->with([
                 'teacher:id,device_token'
             ])
             ->find($requestWalletId);
+
         if (is_null($requestWallet)) {
             throw new NotFoundException('Data request pencairan dana tidak ada');
+        }
+
+        if(!is_null($requestWallet->evidance)) {
+            throw new BadRequestException('Permintaan pencairan saldo ini sudah ditransfer');
         }
 
         $evidanceFile = $request->file('evidance');
@@ -111,19 +126,22 @@ class WalletController extends Controller
 
         User::find($requestWallet->user_id)->decrement('wallet', $requestWallet->request_ammount);
 
-        $message = CloudMessage::withTarget('token', $requestWallet->teacher->device_token)
-            ->withNotification(
-                Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh')
-            )
-            ->withData([
-                'status' => 'success',
-                'navigate' => 'RequestWalletDetail',
-                'param' => 'requestWalletId',
-                'value' => $requestWallet->id
-            ])
-            ->withDefaultSounds();
+        if(!is_null($requestWallet->teacher->device_token))
+        {
+            $message = CloudMessage::withTarget('token', $requestWallet->teacher->device_token)
+                ->withNotification(
+                    Notification::create('Pembayaran kamu diterima', 'Sekarang kamu tinggal tunggu guru kamu memberikan link belajarnya deh')
+                )
+                ->withData([
+                    'status' => 'success',
+                    'navigate' => 'RequestWalletDetail',
+                    'param' => 'requestWalletId',
+                    'value' => $requestWallet->id
+                ])
+                ->withDefaultSounds();
 
-        $this->firebaseCloudMessage->sendNotification($message);
+            $this->firebaseCloudMessage->sendNotification($message);
+        }
 
         return response()->json([
             'status' => 200,

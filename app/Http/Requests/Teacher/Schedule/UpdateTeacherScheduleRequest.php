@@ -34,4 +34,18 @@ class UpdateTeacherScheduleRequest extends FormRequest
             ],
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'note.required' => 'Note tidak boleh kosong',
+            'status.required' => 'status tidak boleh kosong',
+            'status.in' => 'Status jadwal haruslah rejected atau accepted',
+        ];
+    }
 }

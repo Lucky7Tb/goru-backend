@@ -24,10 +24,20 @@ class UpdateScheduleMeetLinkRequest extends FormRequest
     public function rules()
     {
         return [
-            'meet_link' => [
-                'required',
-                'url'
-            ]
+            'meet_link' => ['required', 'url']
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'meet_link.required' => 'Link pembelajaran tidak boleh kosong',
+            'meet_link.url' => 'Format link tidak benar',
         ];
     }
 }

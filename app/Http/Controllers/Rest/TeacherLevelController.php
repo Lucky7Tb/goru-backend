@@ -13,9 +13,10 @@ class TeacherLevelController extends Controller
 {
     public function getAllTeacherLevel()
     {
-        $teacherLevels = TeacherLevel::with(['level:id,name'])
+        $teacherLevels = TeacherLevel::select('id', 'level_id')
+            ->with(['level:id,name'])
             ->where('user_id', '=', auth()->user()->id)
-            ->get(['id', 'level_id']);
+            ->get();
         return response()->json([
             'message' => 'Berhasil ambil data jenjang pendidikan ajar guru',
             'data' => $teacherLevels

@@ -33,4 +33,19 @@ class ChangeProfileRequest extends FormRequest
             ],
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'full_name.required' => 'Nama tidak boleh kosong',
+            'phone_number.required' => 'No telepon tidak boleh kosong',
+            'phone_number.digits_between' => 'No telpon minimal 10-15 digit',
+            'phone_number.unique' => 'No telpon sudah ada yang menggunakan'
+        ];
+    }
 }

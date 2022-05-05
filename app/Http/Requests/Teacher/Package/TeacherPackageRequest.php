@@ -44,4 +44,20 @@ class TeacherPackageRequest extends FormRequest
 
         return $validation;
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'price_per_hour.required' => 'Harga tidak boleh kosong',
+            'price_per_hour.min' => 'Harga minimal 50.000',
+            'price_per_hour.integer' => 'Harga haruslah angka',
+            'encounter.required' => 'Jumlah pertemuan tidak boleh kosong',
+            'encounter.integer' => 'Jumlah pertemuan haruslah angka',
+        ];
+    }
 }

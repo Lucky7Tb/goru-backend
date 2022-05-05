@@ -13,7 +13,7 @@ class TeacherLessonSubjectController extends Controller
 {
     public function getAllTeacherLessonSubject()
     {
-        $lessonSubjects = TeacherLessonSubject::with(['lessonSubject:id,name'])
+        $lessonSubjects = TeacherLessonSubject::with(['lessonSubject:id,name,thumbnail'])
             ->where('user_id', '=', auth()->user()->id)
             ->get(['id', 'lesson_subject_id']);
 

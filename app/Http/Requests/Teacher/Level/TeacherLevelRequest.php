@@ -27,4 +27,16 @@ class TeacherLevelRequest extends FormRequest
             'level_id' => ['required', 'uuid']
         ];
     }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'level_id.required' => 'Pilihan level tidak boleh kosong',
+        ];
+    }
 }

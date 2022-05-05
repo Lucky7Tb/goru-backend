@@ -130,7 +130,7 @@ Route::middleware(['auth:sanctum', 'is.teacher'])
             ->prefix('schedule')
             ->group(function () {
                 Route::get('/', 'getTeacherSchedule');
-                Route::get('/{scheduleId}/detail', 'getTeacherScheduleDetail');
+                Route::get('/{scheduleId}', 'getTeacherScheduleDetail');
                 Route::put('/{scheduleId}/detail/{scheduleDetailId}', 'updateTeacherScheduleDetail');
                 Route::put('/{scheduleId}/detail/{scheduleDetailId}/meet-link', 'updateScheduleMeetLink');
                 Route::post('/{scheduleId}/detail/{scheduleDetailId}/meet-evidance', 'updateScheduleMeetEvidance');
@@ -151,6 +151,12 @@ Route::middleware(['auth:sanctum', 'is.teacher'])
                 Route::get('/request-wallet', 'getListTeacherRequestWallet');
                 Route::get('/request-wallet/{requestWallerId}', 'getOneTeacherRequestWallet');
                 Route::post('/request-wallet', 'createRequestWallet');
+            });
+
+        Route::controller(\App\Http\Controllers\Rest\TeacherFeedbackController::class)
+            ->prefix('feedback')
+            ->group(function () {
+                Route::get('/', 'getTeacherFeedback');
             });
     });
 
@@ -178,7 +184,7 @@ Route::middleware(['auth:sanctum', 'is.student'])
             ->prefix('schedule')
             ->group(function () {
                 Route::get('/', 'getStudentSchedule');
-                Route::get('/{scheduleId}/detail', 'getStudentScheduleDetail');
+                Route::get('/{scheduleId}', 'getStudentScheduleDetail');
                 Route::put('/{scheduleId}/detail/{scheduleDetailId}', 'updateStudentScheduleDetail');
             });
     });
