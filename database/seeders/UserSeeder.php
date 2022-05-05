@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Container\Container;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use Faker\Generator;
 
 class UserSeeder extends Seeder
 {
@@ -17,38 +15,70 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $faker = Container::getInstance()->make(Generator::class);
+
+        $teacherId = Str::uuid();
 
         DB::table("users")->insert([
             [
                 "id" => Str::uuid(),
-                "full_name" => $faker->name(),
-                "phone_number" => trim($faker->numerify('##########')),
-                "email" => "teacher@mail.com",
-                "role" => "teacher",
-                "password" => bcrypt("password123"),
-                "created_at" => now("Asia/Jakarta"),
-                "updated_at" => now("Asia/Jakarta")
-            ],
-            [
-                "id" => Str::uuid(),
-                "full_name" => $faker->name(),
-                "phone_number" => trim($faker->numerify('##########')),
-                "email" => "student@mail.com",
-                "role" => "student",
-                "password" => bcrypt("password123"),
-                "created_at" => now("Asia/Jakarta"),
-                "updated_at" => now("Asia/Jakarta")
-            ],
-            [
-                "id" => Str::uuid(),
-                "full_name" => "admin",
-                "phone_number" => "088888888",
+                "full_name" => "Admin goru",
+                "phone_number" => "08993970968",
                 "email" => "admin@mail.com",
                 "role" => "admin",
                 "password" => bcrypt("password123"),
-                "created_at" => now("Asia/Jakarta"),
-                "updated_at" => now("Asia/Jakarta")
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "id" => Str::uuid(),
+                "full_name" => "student",
+                "phone_number" => "081298129119",
+                "email" => "student@mail.com",
+                "role" => "student",
+                "password" => bcrypt("password123"),
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+            [
+                "id" => $teacherId,
+                "full_name" => "Teacher",
+                "phone_number" => "128192891111",
+                "email" => "teacher@mail.com",
+                "role" => "teacher",
+                "password" => bcrypt("password123"),
+                "created_at" => now(),
+                "updated_at" => now()
+            ],
+        ]);
+
+        DB::table("teacher_packages")->insert([
+            [
+                'id' => Str::uuid(),
+                "user_id" => $teacherId,
+                "package" => "per_day",
+                "price_per_hour" => 50000,
+                "created_at" => now(),
+                "updated_at" => now()
+            ]
+        ]);
+
+        DB::table("teacher_lesson_subjects")->insert([
+            [
+                "id" => Str::uuid(),
+                "lesson_subject_id" => DB::table('lesson_subjects')->select('id')->first()->id,
+                "user_id" => $teacherId,
+                "created_at" => now(),
+                "updated_at" => now()
+            ]
+        ]);
+
+        DB::table("teacher_levels")->insert([
+            [
+                "id" => Str::uuid(),
+                "level_id" => DB::table('levels')->select('id')->first()->id,
+                "user_id" => $teacherId,
+                "created_at" => now(),
+                "updated_at" => now()
             ]
         ]);
     }

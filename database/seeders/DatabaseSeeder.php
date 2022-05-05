@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ApplicationBankAccountSeed::class,
             LessonSubjectSeed::class,
+            LevelSeed::class,
             UserSeeder::class,
-            LevelSeed::class
         ]);
     }
 }

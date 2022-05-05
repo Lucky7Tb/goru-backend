@@ -18,10 +18,10 @@ class ApplicationBankAccountSeed extends Seeder
         DB::table("application_bank_accounts")->insert([
             [
                 "id" => Str::uuid(),
-                "name" => "BCA",
+                "name" => "BRI",
                 "number" => "08808993970968",
                 "alias" => "goru",
-                "bank_logo" => "https://mybanklogo.png",
+                "bank_logo" => "BRI.png",
                 "is_active" => true,
                 "created_at" => now(),
                 "updated_at" => now()
