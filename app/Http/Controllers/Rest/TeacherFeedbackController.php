@@ -114,16 +114,19 @@ class TeacherFeedbackController extends Controller
                 'is_already_feedback' => 1
             ]);
 
-        $message = CloudMessage::withTarget('token', $teacher->device_token)
-            ->withNotification(
-                Notification::create('Siswa sudah memberikan ulasannya', 'Ayo lihat ulasannya')
-            )
-            ->withData([
-                'status' => 'success',
-                'navigate' => 'Feedback'
-            ])
-            ->withDefaultSounds();
-        $this->firebaseCloudMessage->sendNotification($message);
+        if(!is_null($teacher->device_token)) 
+        {
+            $message = CloudMessage::withTarget('token', $teacher->device_token)
+                ->withNotification(
+                    Notification::create('Siswa sudah memberikan ulasannya', 'Ayo lihat ulasannya')
+                )
+                ->withData([
+                    'status' => 'success',
+                    'navigate' => 'Feedback'
+                ])
+                ->withDefaultSounds();
+            $this->firebaseCloudMessage->sendNotification($message);
+        }
 
         return response()->json([
             'status' => 200,
