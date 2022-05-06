@@ -106,14 +106,12 @@ class TeacherController extends Controller
             });
         })
         ->when(request('level_id'), function ($query) {
-            return $query->whereHas('teacherLevel', function ($q) {
-                if(request('level_id') !== "")
-                {
-                    return $q->where('level_id', request('level_id'));                    
-                }
-
-                return $q->where('level_id', '!=', null);
-            });
+           if(request('level_id') !== "")
+            {
+                return $query->whereHas('teacherLevel', function ($q) {
+                    return $q->where('level_id', request('level_id'));
+                });
+            }
         })
         ->where('role', '=', 'teacher')
         ->get();
