@@ -36,7 +36,7 @@ class TeacherLevelRequest extends FormRequest
     public function messages()
     {
         return [
-            'level_id.required' => 'Pilihan level tidak boleh kosong',
+            'level_id.required' => 'Pilihan jenjang pendidikan tidak boleh kosong',
         ];
     }
 }
