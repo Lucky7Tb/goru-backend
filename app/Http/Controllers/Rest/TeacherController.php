@@ -136,9 +136,6 @@ class TeacherController extends Controller
             'teacherComments:id,student_id,teacher_id,comment',
             'teacherComments.student:id,full_name,photo_profile'
         ])
-        ->whereHas('teacherComments', function ($query) {
-          $query->limit(1);
-        })
         ->find($getTeacher->id);
 
         return response()->json([
