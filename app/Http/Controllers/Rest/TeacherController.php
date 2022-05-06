@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Student\Teacher\HireTeacherRequest;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
-use Kreait\Firebase\Contract\Messaging;
-use App\Firebase\FirebaseCloudMessage;
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Schedule;
+use App\Models\Transaction;
 use App\Models\ScheduleDetail;
 use App\Models\TeacherPackage;
-use App\Models\Transaction;
-use App\Models\Schedule;
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
+use App\Firebase\FirebaseCloudMessage;
+use Kreait\Firebase\Contract\Messaging;
+use Illuminate\Database\Eloquent\Builder;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+use App\Http\Requests\Student\Teacher\HireTeacherRequest;
 
 class TeacherController extends Controller
 {
@@ -97,8 +98,8 @@ class TeacherController extends Controller
                 'teacherLessonSubject.lessonSubject:id,name',
             ])
         ->when(request('name'), function ($query) {
-            $seacrTerm = request('name');
-            return $query->orWhere('full_name', 'ILIKE', "%{$seacrTerm}%");
+            $searchTerm = request('name');
+            return $query->orWhere('full_name', 'ILIKE', "%{$searchTerm}%");
         })
         ->when(request('lesson_subject_id'), function ($query) {
             return $query->whereHas('teacherLessonSubject', function ($q) {
@@ -106,12 +107,9 @@ class TeacherController extends Controller
             });
         })
         ->when(request('level_id'), function ($query) {
-           if(request('level_id') !== "")
-            {
-                return $query->whereHas('teacherLevel', function ($q) {
-                    return $q->where('level_id', request('level_id'));
-                });
-            }
+            return $query->whereHas('teacherLevel', function ($q) {
+                return $q->where('level_id', request('level_id'));
+            });
         })
         ->where('role', '=', 'teacher')
         ->get();
