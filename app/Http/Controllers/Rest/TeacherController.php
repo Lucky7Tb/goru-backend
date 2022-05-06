@@ -79,6 +79,7 @@ class TeacherController extends Controller
                     'value' => $schedule->id
                 ])
                 ->withDefaultSounds();
+
             $this->firebaseCloudMessage->sendNotification($message);
         }
 
@@ -106,7 +107,12 @@ class TeacherController extends Controller
         })
         ->when(request('level_id'), function ($query) {
             return $query->whereHas('teacherLevel', function ($q) {
-                return $q->where('level_id', request('level_id'));
+                if(request('level_id') !== "")
+                {
+                    return $q->where('level_id', request('level_id'));                    
+                }
+
+                return $q->where('level_id', '!=', null);
             });
         })
         ->where('role', '=', 'teacher')
