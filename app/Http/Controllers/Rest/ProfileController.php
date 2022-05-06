@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Rest;
 
-use App\Http\Requests\Profile\changePhotoProfileRequest;
+use App\Http\Requests\Profile\ChangePhotoProfileRequest;
 use App\Http\Requests\Profile\ChangePasswordRequest;
 use App\Http\Requests\Profile\ChangeProfileRequest;
 use App\Http\Requests\Profile\ChangeBioRequest;
