@@ -44,7 +44,7 @@ class ChangePasswordRequest extends FormRequest
             'new_password.min' => 'Password baru minimal mempunyai 8 panjang karakter',
             'confirm_password.required' => 'Konfirmasi password tidak boleh kosong',
             'confirm_password.min' => 'Konfirmasi password minimal mempunyai 8 panjang karakter',
-            'confirm_password.min' => 'Konfirmasi password harus sama dengan password baru',
+            'confirm_password.same' => 'Konfirmasi password harus sama dengan password baru',
         ];
     }
 }
