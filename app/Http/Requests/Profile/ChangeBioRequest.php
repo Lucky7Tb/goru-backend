@@ -24,7 +24,7 @@ class ChangeBioRequest extends FormRequest
     public function rules()
     {
         return [
-            'bio' => ['required', 'string', 'max:100']
+            'bio' => ['string', 'max:100']
         ];
     }
 
