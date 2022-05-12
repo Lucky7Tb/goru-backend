@@ -49,6 +49,7 @@ class TeacherFeedbackController extends Controller
                     ->when(request('limit'), function ($query) {
                         return $query->limit(request('limit'));
                     })
+                    ->orderBy('created_at', 'desc')
                     ->get();
                 $feedback['comments'] = $comments;
                 $feedback['ratings'] = $ratings;
@@ -114,8 +115,7 @@ class TeacherFeedbackController extends Controller
                 'is_already_feedback' => 1
             ]);
 
-        if(!is_null($teacher->device_token)) 
-        {
+        if (!is_null($teacher->device_token)) {
             $message = CloudMessage::withTarget('token', $teacher->device_token)
                 ->withNotification(
                     Notification::create('Siswa sudah memberikan ulasannya', 'Ayo lihat ulasannya')
