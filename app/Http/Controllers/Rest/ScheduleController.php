@@ -159,6 +159,7 @@ class ScheduleController extends Controller
                 'teacher_package_id' => $schedule->teacher_package_id,
                 'schedule_id' => $schedule->id,
                 'price_per_hour' => $teacherPackage->price_per_hour,
+                'admin_price' => $adminPrice,
                 'total_price' => $totalPrice,
                 'status' => 'not_paid_yet'
             ]);

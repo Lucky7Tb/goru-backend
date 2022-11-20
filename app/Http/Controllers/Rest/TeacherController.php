@@ -130,7 +130,7 @@ class TeacherController extends Controller
         $teacherDetails = User::select('id','full_name','bio','photo_profile' )
         ->with([
             'teacherLessonSubject:id,lesson_subject_id,user_id',
-            'teacherLessonSubject.lessonSubject:id,name,thumbnail',
+            'teacherLessonSubject.lessonSubject:id,name',
             'teacherLevel:user_id,level_id',
             'teacherLevel.level:id,name',
             'teacherDocumentAdditional:id,user_id,document',

@@ -27,11 +27,16 @@ class User extends Authenticatable
         'is_recommended' => 'boolean',
     ];
 
-    protected $appends = ['rating'];
+    protected $appends = ['rating', 'total_review'];
 
     public function getRatingAttribute()
     {
         return intval(TeacherRating::where('teacher_id', '=', $this->attributes['id'])->avg('rating'));
+    }
+
+    public function getTotalReviewAttribute()
+    {
+        return intval(TeacherRating::where('teacher_id', '=', $this->attributes['id'])->sum('id'));
     }
 
     public function role(): Attribute

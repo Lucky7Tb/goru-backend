@@ -24,6 +24,9 @@ class LessonSubjectController extends Controller
     {
         $lessonSubjects = LessonSubject::select('id', 'name', 'description', 'thumbnail')
             ->orderBy('created_at', 'desc')
+            ->when(request('limit'), function($query) {
+                return $query->limit(request('limit'));
+            })
             ->get();
 
         return response()->json([

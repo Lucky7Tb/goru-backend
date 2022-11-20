@@ -55,6 +55,8 @@ class TransactionController extends Controller
         $transaction = Transaction::with([
             'student:id,full_name,phone_number,photo_profile',
             'teacher:id,full_name,phone_number,photo_profile',
+            'teacher.teacherLessonSubject:user_id,lesson_subject_id',
+            'teacher.teacherLessonSubject.lessonSubject:id,name',
             'teacherPackage:id,package',
             'schedule:id,from_date,to_date',
             'schedule.scheduleDetail:schedule_id,from_time,to_time',
@@ -172,6 +174,8 @@ class TransactionController extends Controller
 
     public function uploadTransferEvidanceStudent(string $transactionId, UploadTransactionEvidanceRequest $request)
     {
+        $data = $request->validated();
+
         $transaction = Transaction::select('id', 'evidance')->find($transactionId);
         if (is_null($transaction)) {
             throw new NotFoundException('Transaksi tidak ditemukan');
@@ -181,6 +185,9 @@ class TransactionController extends Controller
         $evidanceFileName = $this->firebaseStorage->uploadFile($evidance, 'transaction_evidances/');
         $transaction->update([
             'evidance' => $evidanceFileName,
+            'sender_account_number' => $data['sender_account_number'],
+            'sender_account_name' => $data['sender_account_name'],
+            'sender_bank_name' => $data['sender_bank_name'],
             'status' => 'in_review'
         ]);
 
